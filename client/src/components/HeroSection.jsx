@@ -31,7 +31,7 @@ function HeroSection() {
           onClick={scrollToMenu}
           className="bg-white text-black px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition"
         >
-          Ver Menú
+          Ver Productos
         </button>
       </div>
     </section>

@@ -1,10 +1,11 @@
 import Navbar from "../components/Navbar"
 import Footer from "../components/Footer"
+
 function MainLayout({children}) {
     return(
-        <div>
+        <div className="min-h-screen flex flex-col">
             <Navbar />
-            <main>
+            <main className="flex-1 pt-20">
                 {children}
             </main>
             <Footer />

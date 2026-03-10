@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
+import { useNavigate } from "react-router-dom"
+import { AuthContext } from "../context/AuthContext"
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const { isAuthenticated, logout } = useContext(AuthContext)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -11,6 +15,11 @@ function Navbar() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  const handleLogout = () => {
+    logout()
+    navigate("/admin/login")
+  }
 
   return (
     <nav
@@ -32,7 +41,7 @@ function Navbar() {
         </a>
 
         {/* Links */}
-        <div className="hidden md:flex gap-8 font-medium">
+        <div className="hidden md:flex gap-8 font-medium items-center">
           <a href="#menu" className="hover:text-yellow-600">
             Productos
           </a>
@@ -42,6 +51,18 @@ function Navbar() {
           <a href="#contacto" className="hover:text-yellow-600">
             Contacto
           </a>
+          {isAuthenticated ? (
+            <button
+              onClick={handleLogout}
+              className="text-red-500 hover:text-red-700 font-medium"
+            >
+              Cerrar sesión
+            </button>
+          ) : (
+            <a href="/admin/login" className="hover:text-yellow-600">
+              Admin
+            </a>
+          )}
         </div>
 
       </div>
@@ -50,3 +71,4 @@ function Navbar() {
 }
 
 export default Navbar
+

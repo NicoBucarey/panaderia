@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Admin user para autenticación
+model User {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+// Categorías de productos (panificados, facturas, etc)
+model Category {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  products  Product[]
+  createdAt DateTime @default(now())
+}
+
+// Productos de la panadería
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String
+  price       Int // en centavos para evitar decimales: 1200 = $12.00
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  Int
+  image       String?
+  available   Boolean @default(true) // si el producto está disponible
+  featured    Boolean @default(false) // si está destacado en la home
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
