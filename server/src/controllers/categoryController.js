@@ -7,9 +7,7 @@ import { getPrisma } from "../db.js"
 export const getAllCategories = async (req, res) => {
   try {
     const prisma = await getPrisma()
-    const categories = await prisma.category.findMany({
-      include: { _count: { select: { products: true } } }
-    })
+    const categories = await prisma.category.findMany()
     res.json(categories)
   } catch (error) {
     console.error("Error al obtener categorías:", error)
@@ -116,16 +114,16 @@ export const deleteCategory = async (req, res) => {
 
     const exists = await prisma.category.findUnique({
       where: { id: parseInt(id) },
-      include: { _count: { select: { products: true } } }
+      include: { Product: true }
     })
 
     if (!exists) {
       return res.status(404).json({ error: "Categoría no encontrada" })
     }
 
-    if (exists._count.products > 0) {
+    if (exists.Product.length > 0) {
       return res.status(400).json({ 
-        error: `No se puede eliminar. Esta categoría tiene ${exists._count.products} producto(s)` 
+        error: `No se puede eliminar. Esta categoría tiene ${exists.Product.length} producto(s)` 
       })
     }
 

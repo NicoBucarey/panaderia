@@ -8,7 +8,7 @@ export const getAllProducts = async (req, res) => {
   try {
     const prisma = await getPrisma()
     const products = await prisma.product.findMany({
-      include: { category: true }
+      include: { Category: true }
     })
     
     // Convertir a formato esperado por el frontend
@@ -34,7 +34,7 @@ export const getProductById = async (req, res) => {
     const { id } = req.params
     const product = await prisma.product.findUnique({
       where: { id: parseInt(id) },
-      include: { category: true }
+      include: { Category: true }
     })
     
     if (!product) {
@@ -56,10 +56,16 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const prisma = await getPrisma()
-    const { name, description, price, categoryId = 1, image, available = true, featured = false } = req.body
+    const { name, description = "", price, categoryId = 1, image, unidadVenta = "unidad", available = true, featured = false } = req.body
     
-    if (!name || !description || price == null) {
+    console.log("📝 Creando producto:", { name, price, image, unidadVenta })
+    
+    if (!name || price == null) {
       return res.status(400).json({ error: "Faltan campos requeridos" })
+    }
+    
+    if (!image) {
+      return res.status(400).json({ error: "La imagen es requerida" })
     }
     
     const newProduct = await prisma.product.create({
@@ -69,12 +75,14 @@ export const createProduct = async (req, res) => {
         price: parseInt(price),
         categoryId: parseInt(categoryId),
         image: image || "",
+        unidadVenta,
         available,
         featured
       },
-      include: { category: true }
+      include: { Category: true }
     })
     
+    console.log("✅ Producto creado:", newProduct)
     res.status(201).json(newProduct)
   } catch (error) {
     console.error("Error al crear producto:", error)
@@ -90,7 +98,7 @@ export const updateProduct = async (req, res) => {
   try {
     const prisma = await getPrisma()
     const { id } = req.params
-    const { name, description, price, categoryId, image, available, featured } = req.body
+    const { name, description, price, categoryId, image, unidadVenta, available, featured } = req.body
     
     // Verificar que el producto existe
     const exists = await prisma.product.findUnique({
@@ -107,13 +115,14 @@ export const updateProduct = async (req, res) => {
     if (price !== undefined) data.price = parseInt(price)
     if (categoryId !== undefined) data.categoryId = parseInt(categoryId)
     if (image !== undefined) data.image = image
+    if (unidadVenta !== undefined) data.unidadVenta = unidadVenta
     if (available !== undefined) data.available = available
     if (featured !== undefined) data.featured = featured
     
     const updated = await prisma.product.update({
       where: { id: parseInt(id) },
       data,
-      include: { category: true }
+      include: { Category: true }
     })
     
     res.json(updated)

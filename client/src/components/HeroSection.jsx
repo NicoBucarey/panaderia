@@ -3,36 +3,56 @@ function HeroSection() {
   const scrollToMenu = () => {
     const section = document.getElementById("menu")
     section?.scrollIntoView({ behavior: "smooth" })
-  } //scrollIntoView es un método que permite desplazar la página hasta el elemento que se le indique, en este caso el elemento con id "menu". El parámetro { behavior: "smooth" } hace que el desplazamiento sea suave en lugar de instantáneo.
-  //?. es el operador de encadenamiento opcional, que permite acceder a la función scrollIntoView solo si el elemento section existe, evitando errores si no se encuentra el elemento con id "menu".
+  }
 
   return (
-    <section
-      className="relative h-screen bg-cover bg-center flex items-center justify-center"
+    <section 
+      className="relative min-h-screen bg-cover bg-center bg-fixed flex items-center justify-center px-4 py-12"
       style={{
-        backgroundImage:
-            "url('https://images.unsplash.com/photo-1509440159596-0249088772ff')"
+        backgroundImage: "url('https://images.unsplash.com/photo-1509440159596-0249088772ff')"
       }}
     >
-      {/* Overlay oscuro */}
-      <div className="absolute inset-0 bg-black/60"></div>
+      {/* Overlay suave */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40"></div>
 
-      {/* Contenido */}
-      <div className="relative text-center text-white px-4">
-        <h1 className="text-5xl md:text-6xl font-bold mb-4">
-            Panadería Blasco
-        </h1>
+      {/* Contenedor con marco de color solo para la imagen */}
+      <div className="relative w-full max-w-5xl">
+        {/* Marco ámbar solo alrededor de la imagen */}
+        <div className="p-8 md:p-12 bg-amber-100/60 backdrop-blur-sm rounded-3xl shadow-2xl">
+          {/* Imagen principal - responsiva */}
+          <div className="relative">
+            <img 
+              src="/portada.png" 
+              alt="Panadería Blasco - Portada"
+              className="w-full h-auto object-contain rounded-2xl shadow-2xl"
+            />
+          </div>
+        </div>
 
-        <p className="text-xl md:text-2xl mb-8">
-             Tradición y sabor en cada día
-        </p>
+        {/* Contenido debajo - sin borde */}
+        <div className="text-center space-y-6 mt-8">
+<p className="text-white text-xl md:text-2xl font-medium drop-shadow-lg">
+            Descubre nuestros productos artesanales
+          </p>
 
-        <button
-          onClick={scrollToMenu}
-          className="bg-white text-black px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition"
-        >
-          Ver Productos
-        </button>
+          <button
+            onClick={scrollToMenu}
+            className="inline-block bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            Ver Productos
+          </button>
+        </div>
+      </div>
+
+      {/* Decoración - línea ondulada inferior */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 120" className="w-full" preserveAspectRatio="none">
+          <path
+            d="M0,50 Q360,0 720,50 T1440,50 L1440,120 L0,120 Z"
+            fill="#f3f4f6"
+            opacity="0.5"
+          />
+        </svg>
       </div>
     </section>
   )

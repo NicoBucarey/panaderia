@@ -12,7 +12,7 @@ function Home() {
   const [products, setProducts] = useState([]) // productos traídos del backend
   const [loading, setLoading] = useState(true) // indicador de carga
   const [error, setError] = useState(null) // manejo de errores
-  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [selectedCategory, setSelectedCategory] = useState("todos")
 
   // Cargar productos cuando el componente monta
   useEffect(() => {
@@ -35,14 +35,14 @@ function Home() {
 
   // Filtrar productos por categoría seleccionada
   const filteredProducts =
-    selectedCategory === "all"
+    selectedCategory === "todos"
       ? products
-      : products.filter(product => product.category.name === selectedCategory)
+      : products.filter(product => product.Category.name === selectedCategory)
 
   // Obtener lista de categorías únicas de los productos
   const categories = [
-    "all",
-    ...new Set(products.map(product => product.category.name))
+    "todos",
+    ...new Set(products.map(product => product.Category.name))
   ] 
 
  return (

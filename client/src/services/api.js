@@ -341,3 +341,37 @@ export const deleteCategory = async (id) => {
     throw error
   }
 }
+
+/**
+ * UPLOAD - Subir imágenes
+ */
+
+/**
+ * Subir una imagen
+ * POST /api/upload
+ * @param {File} file - Archivo de imagen
+ * @returns {Object} { success, url, filename }
+ */
+export const uploadImage = async (file) => {
+  try {
+    const formData = new FormData()
+    formData.append("image", file)
+
+    const response = await fetch(`${API_URL}/api/upload`, {
+      method: "POST",
+      body: formData
+      // NO incluir Content-Type: application/json porque es multipart/form-data
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al subir imagen")
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error en uploadImage:", error)
+    throw error
+  }
+}
