@@ -1,3 +1,4 @@
+import QRPage from "./pages/QRPage"
 import MainLayout from "./layouts/MainLayout"
 import Home from "./pages/Home"
 import AdminLogin from "./pages/AdminLogin"
@@ -18,6 +19,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/productos" element={<AdminProducts />} />
           <Route path="/admin/categorias" element={<AdminCategories />} />
+          <Route path="/qr" element={<QRPage />} />
         </Routes>
      </MainLayout>
    </AuthProvider>

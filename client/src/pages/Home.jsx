@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import ProductCard from "../components/ProductCard"
-import CategoryButton from "../components/categoryButton"
+import CategoryButton from "../components/CategoryButton"
 import HeroSection from "../components/HeroSection"
 import LocationSection from "../components/LocationSection"
 import HoursSection from "../components/HoursSection"

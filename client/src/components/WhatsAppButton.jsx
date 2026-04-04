@@ -1,5 +1,5 @@
 function WhatsAppSection() {
-  const phoneNumber = "5492994573646"
+  const phoneNumber = "5492994573997"
   const message = "Hola, quisiera información sobre los productos de Panadería Blasco"
 
   const handleWhatsAppClick = () => {
