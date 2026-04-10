@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
 import Modal from "../components/Modal"
+import Toast from "../components/Toast"
 import {
   fetchCategories,
   createCategory,
@@ -20,6 +21,7 @@ function AdminCategories() {
   const [editingId, setEditingId] = useState(null)
   const [formValue, setFormValue] = useState("")
   const [modal, setModal] = useState({ isOpen: false, type: "info", title: "", message: "", action: null, targetId: null })
+  const [toast, setToast] = useState({ isVisible: false, message: "", type: "success" })
 
   useEffect(() => {
     const token = localStorage.getItem("authToken")
@@ -67,17 +69,24 @@ function AdminCategories() {
       if (modal.action === "save") {
         if (modal.targetId) {
           await updateCategory(modal.targetId, formValue)
+          setToast({ isVisible: true, message: `"${formValue}" actualizada correctamente`, type: "success" })
         } else {
           await createCategory(formValue)
+          setToast({ isVisible: true, message: `"${formValue}" creada correctamente`, type: "success" })
         }
         setModal({ ...modal, isOpen: false })
-        resetForm()
-        loadCategories()
-        setShowForm(false)
+        setTimeout(() => {
+          resetForm()
+          loadCategories()
+          setShowForm(false)
+        }, 500)
       } else if (modal.action === "delete") {
         await deleteCategory(modal.targetId)
+        setToast({ isVisible: true, message: "Categoría eliminada correctamente", type: "success" })
         setModal({ ...modal, isOpen: false })
-        loadCategories()
+        setTimeout(() => {
+          loadCategories()
+        }, 500)
       }
     } catch (err) {
       setError(err.message)
@@ -110,6 +119,12 @@ function AdminCategories() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <Toast 
+        isVisible={toast.isVisible} 
+        message={toast.message} 
+        type={toast.type}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -124,14 +139,6 @@ function AdminCategories() {
               {isCreateMode ? "Crear Categoría" : "Gestionar Categorías"}
             </h1>
           </div>
-          {!isCreateMode && (
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-            >
-              🏷️ Nueva Categoría
-            </button>
-          )}
         </div>
 
         {error && (
@@ -204,9 +211,6 @@ function AdminCategories() {
                   >
                     <div>
                       <h3 className="font-semibold text-gray-900">{category.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        ID: {category.id}
-                      </p>
                     </div>
                     <div className="space-x-2">
                       <button

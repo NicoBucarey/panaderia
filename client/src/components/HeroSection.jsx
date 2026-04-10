@@ -5,6 +5,9 @@ function HeroSection() {
     section?.scrollIntoView({ behavior: "smooth" })
   }
 
+  // Detector de tamaño de pantalla
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768
+
   return (
     <section 
       className="relative min-h-screen bg-cover bg-center bg-fixed flex items-center justify-center px-4 py-12"
@@ -18,20 +21,28 @@ function HeroSection() {
       {/* Contenedor con marco de color solo para la imagen */}
       <div className="relative w-full max-w-5xl">
         {/* Marco ámbar solo alrededor de la imagen */}
-        <div className="p-8 md:p-12 bg-amber-100/60 backdrop-blur-sm rounded-3xl shadow-2xl">
+        <div className="p-4 md:p-12 bg-amber-100/60 backdrop-blur-sm rounded-3xl shadow-2xl">
           {/* Imagen principal - responsiva */}
           <div className="relative">
-            <img 
-              src="/portada.png" 
-              alt="Panadería Blasco - Portada"
-              className="w-full h-auto object-contain rounded-2xl shadow-2xl"
-            />
+            <picture>
+              {/* Imagen móvil */}
+              <source 
+                srcSet="/portadamovile.png" 
+                media="(max-width: 768px)" 
+              />
+              {/* Imagen desktop */}
+              <img 
+                src="/portada.png" 
+                alt="Panadería Blasco - Portada"
+                className="w-full h-auto object-contain rounded-2xl shadow-2xl"
+              />
+            </picture>
           </div>
         </div>
 
         {/* Contenido debajo - sin borde */}
         <div className="text-center space-y-6 mt-8">
-<p className="text-white text-xl md:text-2xl font-medium drop-shadow-lg">
+          <p className="text-white text-lg md:text-2xl font-medium drop-shadow-lg">
             Descubre nuestros productos artesanales
           </p>
 
@@ -45,7 +56,7 @@ function HeroSection() {
       </div>
 
       {/* Decoración - línea ondulada inferior */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute -bottom-8 left-0 right-0 pointer-events-none z-0">
         <svg viewBox="0 0 1440 120" className="w-full" preserveAspectRatio="none">
           <path
             d="M0,50 Q360,0 720,50 T1440,50 L1440,120 L0,120 Z"

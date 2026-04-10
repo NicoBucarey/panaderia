@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
 import Modal from "../components/Modal"
+import Toast from "../components/Toast"
 import {
   fetchProducts,
   fetchCategories,
@@ -31,6 +32,7 @@ function AdminProducts() {
   })
   const [uploading, setUploading] = useState(false)
   const [modal, setModal] = useState({ isOpen: false, type: "info", title: "", message: "", action: null, targetId: null })
+  const [toast, setToast] = useState({ isVisible: false, message: "", type: "success" })
 
   useEffect(() => {
     const token = localStorage.getItem("authToken")
@@ -116,6 +118,7 @@ function AdminProducts() {
             price: parseFloat(form.price),
             unidadVenta: form.unidadVenta,
           })
+          setToast({ isVisible: true, message: `"${form.name}" actualizado correctamente`, type: "success" })
         } else {
           await createProduct({
             ...form,
@@ -123,15 +126,21 @@ function AdminProducts() {
             price: parseFloat(form.price),
             unidadVenta: form.unidadVenta,
           })
+          setToast({ isVisible: true, message: `"${form.name}" creado correctamente`, type: "success" })
         }
         setModal({ ...modal, isOpen: false })
-        resetForm()
-        loadData()
-        setShowForm(false)
+        setTimeout(() => {
+          resetForm()
+          loadData()
+          setShowForm(false)
+        }, 500)
       } else if (modal.action === "delete") {
         await deleteProduct(modal.targetId)
+        setToast({ isVisible: true, message: "Producto eliminado correctamente", type: "success" })
         setModal({ ...modal, isOpen: false })
-        loadData()
+        setTimeout(() => {
+          loadData()
+        }, 500)
       }
     } catch (err) {
       setError(err.message)
@@ -176,6 +185,12 @@ function AdminProducts() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <Toast 
+        isVisible={toast.isVisible} 
+        message={toast.message} 
+        type={toast.type}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -190,14 +205,6 @@ function AdminProducts() {
               {isCreateMode ? "Crear Producto" : "Gestionar Productos"}
             </h1>
           </div>
-          {!isCreateMode && (
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-            >
-              ➕ Nuevo Producto
-            </button>
-          )}
         </div>
 
         {error && (

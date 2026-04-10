@@ -1,7 +1,11 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
+import { CartContext } from "../context/CartContext"
 
 function ProductCard({ product }) {
   const [imageLoaded, setImageLoaded] = useState(false)
+  const { isSelected, toggleProduct } = useContext(CartContext)
+
+  const selected = isSelected(product.id)
 
   // Resolver URL completa si es relativa
   const getImageUrl = () => {
@@ -18,7 +22,9 @@ function ProductCard({ product }) {
   const imageUrl = getImageUrl()
 
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition duration-300">
+    <div className={`rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition duration-300 ${
+      selected ? "bg-green-50 border-2 border-green-500" : "bg-white"
+    }`}>
       
       <div className="h-48 overflow-hidden bg-gray-200 relative">
         <img
@@ -39,17 +45,40 @@ function ProductCard({ product }) {
       </div>
 
       <div className="p-4">
-        <h3 className="text-lg font-semibold">
-          {product.name}
-        </h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-semibold flex-1">
+            {product.name}
+          </h3>
+          <button
+            onClick={() => toggleProduct(product)}
+            className={`ml-2 text-xl transition-transform ${
+              selected ? "text-green-600 scale-125" : "text-gray-400 hover:text-green-600"
+            }`}
+            title={selected ? "Deseleccionar" : "Seleccionar"}
+          >
+            ✓
+          </button>
+        </div>
 
         <p className="text-gray-500 text-sm mt-1">
           {product.description}
         </p>
 
-        <p className="text-green-600 font-bold text-lg mt-3">
-          ${(product.price).toFixed(2)} / {product.unidadVenta}
-        </p>
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-green-600 font-bold text-lg">
+            ${(product.price).toFixed(2)} / {product.unidadVenta}
+          </p>
+          <button
+            onClick={() => toggleProduct(product)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+              selected
+                ? "bg-green-500 hover:bg-green-600 text-white"
+                : "bg-green-100 hover:bg-green-200 text-green-700"
+            }`}
+          >
+            {selected ? "Seleccionado ✓" : "Seleccionar"}
+          </button>
+        </div>
       </div>
 
     </div>

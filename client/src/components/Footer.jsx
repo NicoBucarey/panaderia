@@ -31,8 +31,8 @@ function Footer() {
           <h4 className="text-white font-semibold mb-4">
             Horarios
           </h4>
-          <p>Lunes a Sábado: 7:00 - 20:00</p>
-          <p>Domingos: 8:00 - 13:00</p>
+          <p>Lunes a Sábado: 8:00 - 21:00</p>
+          <p>Domingos: 8:00 - 14:30</p>
         </div>
 
       </div>

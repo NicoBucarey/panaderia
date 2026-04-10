@@ -10,13 +10,13 @@ function HoursSection() {
         <div className="bg-gray-100 rounded-2xl shadow-md p-8">
 
           <div className="flex justify-between mb-4">
-            <span className="font-medium">Lunes a Viernes</span>
+            <span className="font-medium">Lunes a Sabado</span>
             <span className="text-gray-600">08:00 - 21:00</span>
           </div>
 
           <div className="flex justify-between mb-4">
-            <span className="font-medium">Sabado y Domingo</span>
-            <span className="text-gray-600">08:00 - 15:00</span>
+            <span className="font-medium">Domingo</span>
+            <span className="text-gray-600">08:00 - 14:30</span>
           </div>
 
 

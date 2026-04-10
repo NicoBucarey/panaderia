@@ -4,6 +4,8 @@ import CategoryButton from "../components/CategoryButton"
 import HeroSection from "../components/HeroSection"
 import LocationSection from "../components/LocationSection"
 import HoursSection from "../components/HoursSection"
+import SocialSection from "../components/SocialSection"
+import FloatingBar from "../components/FloatingBar"
 import WhatsAppSection from "../components/WhatsAppButton"
 import { fetchProducts } from "../services/api"
 
@@ -47,9 +49,10 @@ function Home() {
 
  return (
   <>
+    <FloatingBar />
     <HeroSection />
 
-    <div id="menu" className="container mx-auto py-10 px-4">
+    <div id="menu" className="container mx-auto py-10 px-4 pb-40">
       
       <h1 className="text-3xl font-bold mb-6">
         Nuestro Menú
@@ -104,6 +107,7 @@ function Home() {
     <WhatsAppSection />
     <LocationSection />
     <HoursSection />
+    <SocialSection />
     
   </>
 )
