@@ -52,7 +52,7 @@ function Home() {
     <FloatingBar />
     <HeroSection />
 
-    <div id="menu" className="container mx-auto py-10 px-4 pb-40">
+    <div id="menu" className="container mx-auto py-10 px-4">
       
       <h1 className="text-3xl font-bold mb-6">
         Nuestro Menú

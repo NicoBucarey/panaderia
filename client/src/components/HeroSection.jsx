@@ -10,7 +10,7 @@ function HeroSection() {
 
   return (
     <section 
-      className="relative min-h-screen bg-cover bg-center bg-fixed flex items-center justify-center px-4 py-12"
+      className="relative min-h-screen bg-cover bg-center bg-fixed flex items-center justify-center px-4 py-0"
       style={{
         backgroundImage: "url('https://images.unsplash.com/photo-1509440159596-0249088772ff')"
       }}
