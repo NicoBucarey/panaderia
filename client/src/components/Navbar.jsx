@@ -29,13 +29,15 @@ function Navbar() {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
+      className={`fixed w-full z-50 top-0 left-0 ${
         scrolled
-          ? "bg-white shadow-md py-3"
-          : "bg-transparent py-5"
+          ? "bg-white shadow-md"
+          : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+      <div className={`max-w-7xl mx-auto px-4 flex justify-between items-center ${
+        scrolled ? "py-3" : "py-5"
+      }`}>
 
         {/* Logo */}
         <a href="/" className="flex items-center" onClick={handleNavClick}>
