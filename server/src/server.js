@@ -6,7 +6,6 @@ import authRoutes from "./routes/auth.js"
 import productRoutes from "./routes/products.js"
 import categoryRoutes from "./routes/categories.js"
 import uploadRoutes from "./routes/upload.js"
-import runMigrations from "./migrate.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -74,14 +73,6 @@ app.use((err, req, res, next) => {
 })
 
 // ==================== INICIAR SERVIDOR ====================
-(async () => {
-  // En producción, ejecutar migraciones primero
-  if (process.env.NODE_ENV === "production") {
-    console.log("🚀 Ambiente de producción detectado");
-    await runMigrations();
-  }
-  
-  app.listen(PORT, () => {
-    console.log(`✅ Servidor corriendo en http://localhost:${PORT}`)
-  })
-})()
+app.listen(PORT, () => {
+  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`)
+})
