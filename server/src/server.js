@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js"
 import productRoutes from "./routes/products.js"
 import categoryRoutes from "./routes/categories.js"
 import uploadRoutes from "./routes/upload.js"
+import runMigrations from "./migrate.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -14,10 +15,26 @@ const PORT = process.env.PORT || 5000
 
 // ==================== MIDDLEWARES ====================
 // CORS: Permite solicitudes desde el frontend (Vite en localhost:5173)
+const allowedOrigins = [
+  "http://localhost:5173",      // Desarrollo local
+  "http://localhost:3000",       // Desarrollo local alternativo
+  "https://panaderia-blasco.vercel.app", // Producción
+]
+
 app.use(cors({
-  origin: process.env.NODE_ENV === "production" 
-    ? "https://tudominio.vercel.app" 
-    : "http://localhost:5173",
+  origin: (origin, callback) => {
+    // Permitir requests sin origin (móviles, servidores)
+    if (!origin) return callback(null, true)
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else if (process.env.NODE_ENV === "development") {
+      // En desarrollo, permitir cualquier origen
+      callback(null, true)
+    } else {
+      callback(new Error("CORS no permitido"))
+    }
+  },
   credentials: true
 }))
 
@@ -57,6 +74,14 @@ app.use((err, req, res, next) => {
 })
 
 // ==================== INICIAR SERVIDOR ====================
-app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`)
-})
+(async () => {
+  // En producción, ejecutar migraciones primero
+  if (process.env.NODE_ENV === "production") {
+    console.log("🚀 Ambiente de producción detectado");
+    await runMigrations();
+  }
+  
+  app.listen(PORT, () => {
+    console.log(`✅ Servidor corriendo en http://localhost:${PORT}`)
+  })
+})()
