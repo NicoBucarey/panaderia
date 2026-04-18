@@ -16,7 +16,7 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40"></div>
 
       {/* Contenedor con marco de color solo para la imagen */}
-      <div className="relative w-full max-w-5xl">
+      <div className="relative z-10 w-full max-w-5xl">
         {/* Marco ámbar solo alrededor de la imagen */}
         <div className="p-4 md:p-12 bg-amber-100/60 backdrop-blur-sm rounded-3xl shadow-2xl">
           {/* Imagen principal - responsiva */}
@@ -52,7 +52,7 @@ function HeroSection() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent via-gray-100/70 to-gray-100"></div>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-20 bg-gradient-to-b from-transparent via-gray-100/45 to-gray-100"></div>
     </section>
   )
 }
