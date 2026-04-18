@@ -1,20 +1,23 @@
+import { FaFacebookF, FaInstagram } from "react-icons/fa"
+import { SiTiktok } from "react-icons/si"
+
 function SocialSection() {
   const socialLinks = [
     {
       name: "Instagram",
-      icon: "📷",
+      icon: FaInstagram,
       url: "https://instagram.com", // Cambiar con tu URL
       color: "text-pink-600 hover:text-pink-700"
     },
     {
       name: "TikTok",
-      icon: "🎵",
+      icon: SiTiktok,
       url: "https://tiktok.com", // Cambiar con tu URL
       color: "text-black hover:text-gray-700"
     },
     {
       name: "Facebook",
-      icon: "f",
+      icon: FaFacebookF,
       url: "https://facebook.com", // Cambiar con tu URL
       color: "text-blue-600 hover:text-blue-700"
     }
@@ -31,21 +34,25 @@ function SocialSection() {
         </p>
 
         <div className="flex justify-center gap-8">
-          {socialLinks.map(social => (
-            <a
-              key={social.name}
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-transform transform hover:scale-110"
-              title={social.name}
-            >
-              <div className={`${social.color} text-4xl font-bold transition-colors`}>
-                {social.icon}
-              </div>
-              <p className="text-sm text-gray-600 mt-2">{social.name}</p>
-            </a>
-          ))}
+          {socialLinks.map((social) => {
+            const Icon = social.icon
+
+            return (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-transform transform hover:scale-110"
+                title={social.name}
+              >
+                <div className={`${social.color} flex justify-center text-4xl transition-colors`}>
+                  <Icon aria-hidden="true" />
+                </div>
+                <p className="text-sm text-gray-600 mt-2">{social.name}</p>
+              </a>
+            )
+          })}
         </div>
       </div>
     </section>

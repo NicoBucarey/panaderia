@@ -192,7 +192,7 @@ model Product {
 ```
 
 ### Datos actuales
-- 1 Admin: `admin@panaderia.com` (hash: admin123)
+- 1 Admin: `admin@panaderia.com` (hash: adminblasco123)
 - 4 Categorías: panificados, facturas, pasteleria, tortas
 - 6 Productos: Pan Francés, Medialunas, Donas, Tortas
 

@@ -5,12 +5,9 @@ function HeroSection() {
     section?.scrollIntoView({ behavior: "smooth" })
   }
 
-  // Detector de tamaño de pantalla
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768
-
   return (
     <section 
-      className="relative min-h-screen bg-cover bg-center bg-fixed flex items-center justify-center px-4 py-0"
+      className="relative min-h-screen bg-cover bg-center flex items-center justify-center px-4 py-0 md:bg-fixed"
       style={{
         backgroundImage: "url('https://images.unsplash.com/photo-1509440159596-0249088772ff')"
       }}
@@ -55,16 +52,7 @@ function HeroSection() {
         </div>
       </div>
 
-      {/* Decoración - línea ondulada inferior */}
-      <div className="absolute -bottom-8 left-0 right-0 pointer-events-none z-0">
-        <svg viewBox="0 0 1440 120" className="w-full" preserveAspectRatio="none">
-          <path
-            d="M0,50 Q360,0 720,50 T1440,50 L1440,120 L0,120 Z"
-            fill="#f3f4f6"
-            opacity="0.5"
-          />
-        </svg>
-      </div>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent via-gray-100/70 to-gray-100"></div>
     </section>
   )
 }

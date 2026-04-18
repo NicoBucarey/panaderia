@@ -1,10 +1,10 @@
 function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 py-12" id="contacto">
-      <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+      <div className="max-w-6xl mx-auto px-4 grid gap-8 text-center md:grid-cols-3 md:text-left">
 
         {/* Logo */}
-        <div>
+        <div className="flex flex-col items-center md:items-start">
           <img
             src="/logo.png"
             alt="Blasco Bakery"
@@ -23,7 +23,6 @@ function Footer() {
           </h4>
           <p>Choele Choel y El Dorado</p>
           <p>Valentina Sur, Neuquén</p>
-          <p>+54 299 000 0000</p>
         </div>
 
         {/* Horarios */}

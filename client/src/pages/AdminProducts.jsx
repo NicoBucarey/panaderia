@@ -282,7 +282,6 @@ function AdminProducts() {
                     <option value="unidad">Unidad</option>
                     <option value="docena">Docena</option>
                     <option value="porcion">Porción</option>
-                    <option value="100gr">100 gr</option>
                     <option value="kg">kg</option>
                   </select>
                 </div>
