@@ -24,7 +24,7 @@ function HeroSection() {
             <picture>
               {/* Imagen móvil */}
               <source 
-                srcSet="/portadamovile.png" 
+                srcSet="/portadamobile.png" 
                 media="(max-width: 768px)" 
               />
               {/* Imagen desktop */}
