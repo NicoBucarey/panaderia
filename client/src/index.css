@@ -6,6 +6,10 @@ html {
   scroll-behavior: smooth;
 }
 
+body {
+  overflow-x: hidden;
+}
+
 /* Animaciones personalizadas para el menú mobile */
 @keyframes slideDown {
   from {
