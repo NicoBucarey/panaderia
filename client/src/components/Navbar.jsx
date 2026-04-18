@@ -1,20 +1,62 @@
-import { useState, useContext } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
 
 function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
   const { isAuthenticated, logout } = useContext(AuthContext)
   const navigate = useNavigate()
+  const closeTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        window.clearTimeout(closeTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const openMobileMenu = () => {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current)
+    }
+
+    setMobileMenuVisible(true)
+    requestAnimationFrame(() => {
+      setMobileMenuOpen(true)
+    })
+  }
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false)
+
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current)
+    }
+
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setMobileMenuVisible(false)
+    }, 250)
+  }
+
+  const toggleMobileMenu = () => {
+    if (mobileMenuVisible && mobileMenuOpen) {
+      closeMobileMenu()
+      return
+    }
+
+    openMobileMenu()
+  }
 
   const handleLogout = () => {
     logout()
     navigate("/admin/login")
-    setMobileMenuOpen(false)
+    closeMobileMenu()
   }
 
   const handleNavClick = () => {
-    setMobileMenuOpen(false)
+    closeMobileMenu()
   }
 
   return (
@@ -40,7 +82,7 @@ function Navbar() {
           <a href="#ubicacion" className="hover:text-yellow-600" onClick={handleNavClick}>
             Ubicación
           </a>
-          <a href="#contacto" className="hover:text-yellow-600" onClick={handleNavClick}>
+          <a href="#contacto-whatsapp" className="hover:text-yellow-600" onClick={handleNavClick}>
             Contacto
           </a>
           {isAuthenticated ? (
@@ -59,17 +101,17 @@ function Navbar() {
 
         {/* Hamburger Menu Mobile */}
         <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={toggleMobileMenu}
           className="md:hidden text-[1.9rem] font-bold focus:outline-none flex-shrink-0 transition-transform duration-300 hover:scale-110"
           aria-label="Abrir menú"
         >
-          {mobileMenuOpen ? "✕" : "☰"}
+          {mobileMenuVisible && mobileMenuOpen ? "✕" : "☰"}
         </button>
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed top-16 md:top-20 left-0 right-0 bg-white border-b border-gray-200 w-full z-40 shadow-md animate-slide-down">
+      {mobileMenuVisible && (
+        <div className={`fixed top-16 md:top-20 left-0 right-0 bg-white border-b border-gray-200 w-full z-40 shadow-md ${mobileMenuOpen ? "animate-slide-down" : "animate-slide-up"}`}>
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex flex-col gap-0.5 font-medium text-center">
               <a 
@@ -87,7 +129,7 @@ function Navbar() {
                 Ubicación
               </a>
               <a 
-                href="#contacto" 
+                href="#contacto-whatsapp" 
                 className="text-gray-800 hover:text-yellow-600 hover:bg-yellow-50 transition-all duration-200 py-2.5 rounded-lg px-4 text-[15px]"
                 onClick={handleNavClick}
               >

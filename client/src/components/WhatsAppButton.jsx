@@ -9,7 +9,7 @@ function WhatsAppSection() {
   }
 
   return (
-    <section id="contacto-whatsapp" className="bg-gradient-to-r from-green-50 to-emerald-50 py-12 px-4">
+    <section id="contacto-whatsapp" className="bg-gradient-to-r from-green-50 to-emerald-50 scroll-mt-20 md:scroll-mt-24 py-12 px-4">
       <div className="max-w-2xl mx-auto text-center">
         <h2 className="text-3xl font-bold mb-4 text-gray-800">
           ¿Preguntas sobre nuestros productos?

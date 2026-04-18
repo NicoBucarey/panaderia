@@ -10,7 +10,7 @@ function FloatingBar() {
   if (totalCount === 0) return null
 
   // Número de teléfono del negocio (envuelto en URL encode)
-  const phoneNumber = "5493624123456" // Cambiar con tu número de WhatsApp
+  const phoneNumber = "5492994573997" // Cambiar con tu número de WhatsApp
   const message = generateWhatsAppMessage()
   const encodedMessage = encodeURIComponent(message)
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
