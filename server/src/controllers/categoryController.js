@@ -46,14 +46,14 @@ export const getCategoryById = async (req, res) => {
 export const createCategory = async (req, res) => {
   try {
     const prisma = await getPrisma()
-    const { name } = req.body
+    const normalizedName = req.body.name?.trim()
 
-    if (!name) {
+    if (!normalizedName) {
       return res.status(400).json({ error: "El nombre es requerido" })
     }
 
     const category = await prisma.category.create({
-      data: { name }
+      data: { name: normalizedName }
     })
 
     res.status(201).json(category)
@@ -74,9 +74,9 @@ export const updateCategory = async (req, res) => {
   try {
     const prisma = await getPrisma()
     const { id } = req.params
-    const { name } = req.body
+    const normalizedName = req.body.name?.trim()
 
-    if (!name) {
+    if (!normalizedName) {
       return res.status(400).json({ error: "El nombre es requerido" })
     }
 
@@ -90,7 +90,7 @@ export const updateCategory = async (req, res) => {
 
     const category = await prisma.category.update({
       where: { id: parseInt(id) },
-      data: { name }
+      data: { name: normalizedName }
     })
 
     res.json(category)

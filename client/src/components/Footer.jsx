@@ -19,7 +19,7 @@ function Footer() {
         {/* Contacto */}
         <div>
           <h4 className="text-white font-semibold mb-4">
-            Contacto
+            Direccion
           </h4>
           <p>Choele Choel y El Dorado</p>
           <p>Valentina Sur, Neuquén</p>
@@ -36,9 +36,7 @@ function Footer() {
 
       </div>
 
-      <div className="text-center text-sm text-gray-500 mt-10">
-        © {new Date().getFullYear()} Blasco Bakery — Todos los derechos reservados
-      </div>
+      
     </footer>
   )
 }

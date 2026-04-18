@@ -20,7 +20,7 @@ function AdminCategories() {
   const [showForm, setShowForm] = useState(isCreateMode)
   const [editingId, setEditingId] = useState(null)
   const [formValue, setFormValue] = useState("")
-  const [modal, setModal] = useState({ isOpen: false, type: "info", title: "", message: "", action: null, targetId: null })
+  const [modal, setModal] = useState({ isOpen: false, type: "info", title: "", message: "", action: null, targetId: null, value: "" })
   const [toast, setToast] = useState({ isVisible: false, message: "", type: "success" })
 
   useEffect(() => {
@@ -50,6 +50,12 @@ function AdminCategories() {
   const handleSubmit = (e) => {
     e.preventDefault()
     setError(null)
+    const normalizedValue = formValue.trim()
+
+    if (!normalizedValue) {
+      setError("El nombre de la categoría es requerido")
+      return
+    }
     
     const isEditing = editingId ? true : false
     setModal({
@@ -57,10 +63,11 @@ function AdminCategories() {
       type: "info",
       title: isEditing ? "Editar Categoría" : "Crear Categoría",
       message: isEditing 
-        ? `¿Quieres guardar los cambios en "${formValue}"?`
-        : `¿Quieres crear la categoría "${formValue}"?`,
+        ? `¿Quieres guardar los cambios en "${normalizedValue}"?`
+        : `¿Quieres crear la categoría "${normalizedValue}"?`,
       action: "save",
-      targetId: editingId
+      targetId: editingId,
+      value: normalizedValue
     })
   }
 
@@ -68,11 +75,11 @@ function AdminCategories() {
     try {
       if (modal.action === "save") {
         if (modal.targetId) {
-          await updateCategory(modal.targetId, formValue)
-          setToast({ isVisible: true, message: `"${formValue}" actualizada correctamente`, type: "success" })
+          await updateCategory(modal.targetId, modal.value)
+          setToast({ isVisible: true, message: `"${modal.value}" actualizada correctamente`, type: "success" })
         } else {
-          await createCategory(formValue)
-          setToast({ isVisible: true, message: `"${formValue}" creada correctamente`, type: "success" })
+          await createCategory(modal.value)
+          setToast({ isVisible: true, message: `"${modal.value}" creada correctamente`, type: "success" })
         }
         setModal({ ...modal, isOpen: false })
         setTimeout(() => {

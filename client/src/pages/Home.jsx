@@ -7,11 +7,12 @@ import HoursSection from "../components/HoursSection"
 import SocialSection from "../components/SocialSection"
 import FloatingBar from "../components/FloatingBar"
 import WhatsAppSection from "../components/WhatsAppButton"
-import { fetchProducts } from "../services/api"
+import { fetchCategories, fetchProducts } from "../services/api"
 
 function Home() {
   // Estados
   const [products, setProducts] = useState([]) // productos traídos del backend
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true) // indicador de carga
   const [error, setError] = useState(null) // manejo de errores
   const [selectedCategory, setSelectedCategory] = useState("todos")
@@ -22,8 +23,13 @@ function Home() {
       try {
         setLoading(true)
         setError(null)
-        const data = await fetchProducts()
-        setProducts(data)
+        const [productsData, categoriesData] = await Promise.all([
+          fetchProducts(),
+          fetchCategories(),
+        ])
+
+        setProducts(productsData)
+        setCategories(categoriesData)
       } catch (err) {
         console.error("Error al cargar productos:", err)
         setError("No se pudieron cargar los productos. Intenta más tarde.")
@@ -39,12 +45,18 @@ function Home() {
   const filteredProducts =
     selectedCategory === "todos"
       ? products
-      : products.filter(product => product.Category.name === selectedCategory)
+      : products.filter(
+          (product) => product.Category?.name?.trim() === selectedCategory
+        )
 
-  // Obtener lista de categorías únicas de los productos
-  const categories = [
+  // Obtener lista de categorías desde la API
+  const categoryNames = [
     "todos",
-    ...new Set(products.map(product => product.Category.name))
+    ...new Set(
+      categories
+        .map((category) => category.name.trim())
+        .filter((categoryName) => categoryName.length > 0)
+    )
   ] 
 
  return (
@@ -77,7 +89,7 @@ function Home() {
         <>
           {/* Categorías */}
           <div className="flex gap-3 mb-8 overflow-x-auto pb-2">
-            {categories.map(category => (
+            {categoryNames.map(category => (
               <CategoryButton
                 key={category}
                 category={category}
