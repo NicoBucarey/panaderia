@@ -3,6 +3,7 @@ import { CartContext } from "../context/CartContext"
 
 function ProductCard({ product }) {
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { isSelected, toggleProduct } = useContext(CartContext)
@@ -53,7 +54,7 @@ function ProductCard({ product }) {
   const imageUrl = getImageUrl()
 
   const openModal = () => {
-    if (!imageUrl) return
+    if (!imageUrl || imageError) return
 
     if (closeTimeoutRef.current) {
       window.clearTimeout(closeTimeoutRef.current)
@@ -80,25 +81,30 @@ function ProductCard({ product }) {
   return (
     <>
       <div
-        onClick={openModal}
         className={`rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition duration-300 cursor-pointer ${
           selected ? "bg-green-50 border-2 border-green-500" : "bg-white"
         }`}
       >
       
-      <div className="h-48 overflow-hidden bg-gray-200 relative">
+      <div className="h-48 overflow-hidden bg-gray-200 relative" onClick={openModal}>
         <img
           src={imageUrl}
           alt={product.name}
           onLoad={() => setImageLoaded(true)}
-          onError={(e) => {
+          onError={() => {
             console.error(`❌ Error cargando imagen de ${product.name}:`, imageUrl)
+            setImageError(true)
             setImageLoaded(true)
           }}
           className={`w-full h-full object-cover hover:scale-105 transition duration-300 ${
             imageLoaded ? "blur-0" : "blur-sm"
           }`}
         />
+        {imageError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 px-4 text-center text-sm font-medium text-gray-500">
+            Imagen no disponible
+          </div>
+        )}
         {!imageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-200 animate-pulse" />
         )}
@@ -106,11 +112,12 @@ function ProductCard({ product }) {
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold flex-1">
+          <h3 className="text-lg font-semibold flex-1 cursor-pointer" onClick={openModal}>
             {product.name}
           </h3>
           <button
             onClick={(event) => {
+              event.preventDefault()
               event.stopPropagation()
               toggleProduct(product)
             }}
@@ -133,6 +140,7 @@ function ProductCard({ product }) {
           </p>
           <button
             onClick={(event) => {
+              event.preventDefault()
               event.stopPropagation()
               toggleProduct(product)
             }}

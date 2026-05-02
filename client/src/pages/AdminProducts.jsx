@@ -293,11 +293,14 @@ function AdminProducts() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png,.webp,.avif,.gif,image/jpeg,image/png,image/webp,image/avif,image/gif"
                   onChange={handleImageUpload}
                   disabled={uploading}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
+                <p className="mt-2 text-xs text-gray-500">
+                  Formatos soportados: JPG, JPEG, PNG, WebP, AVIF y GIF.
+                </p>
                 {uploading && <p className="text-sm text-gray-500 mt-2">Subiendo...</p>}
                 {form.image && (
                   <div className="mt-3">
