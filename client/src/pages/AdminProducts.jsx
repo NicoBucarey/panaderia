@@ -29,6 +29,7 @@ function AdminProducts() {
     categoryId: "",
     image: "",
     unidadVenta: "unidad",
+    available: true,
   })
   const [uploading, setUploading] = useState(false)
   const [modal, setModal] = useState({ isOpen: false, type: "info", title: "", message: "", action: null, targetId: null })
@@ -66,8 +67,11 @@ function AdminProducts() {
   }
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    setForm(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }))
   }
 
   const handleImageUpload = async (e) => {
@@ -117,6 +121,7 @@ function AdminProducts() {
             categoryId: parseInt(form.categoryId),
             price: parseFloat(form.price),
             unidadVenta: form.unidadVenta,
+            available: form.available,
           })
           setToast({ isVisible: true, message: `"${form.name}" actualizado correctamente`, type: "success" })
         } else {
@@ -125,6 +130,7 @@ function AdminProducts() {
             categoryId: parseInt(form.categoryId),
             price: parseFloat(form.price),
             unidadVenta: form.unidadVenta,
+            available: form.available,
           })
           setToast({ isVisible: true, message: `"${form.name}" creado correctamente`, type: "success" })
         }
@@ -156,6 +162,7 @@ function AdminProducts() {
       categoryId: String(product.categoryId),
       image: product.image,
       unidadVenta: product.unidadVenta || "unidad",
+      available: product.available ?? true,
     })
     setShowForm(true)
   }
@@ -178,6 +185,7 @@ function AdminProducts() {
       categoryId: categories.length > 0 ? String(categories[0].id) : "",
       image: "",
       unidadVenta: "unidad",
+      available: true,
     })
     setEditingId(null)
     setShowForm(false)
@@ -288,6 +296,24 @@ function AdminProducts() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Estado de stock
+                </label>
+                <label className="inline-flex items-center gap-3 rounded-lg border border-gray-300 px-4 py-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    name="available"
+                    checked={form.available}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  />
+                  <span className={`font-medium ${form.available ? "text-green-700" : "text-red-600"}`}>
+                    {form.available ? "En stock" : "Sin stock"}
+                  </span>
+                </label>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Subir Imagen
                 </label>
@@ -374,6 +400,9 @@ function AdminProducts() {
                         Unidad
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                        Stock
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
                         Acciones
                       </th>
                     </tr>
@@ -392,6 +421,11 @@ function AdminProducts() {
                         </td>
                         <td className="px-6 py-4 text-gray-600">
                           {product.unidadVenta || "unidad"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${product.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                            {product.available ? "En stock" : "Sin stock"}
+                          </span>
                         </td>
                         <td className="px-6 py-4 space-x-2">
                           <button
