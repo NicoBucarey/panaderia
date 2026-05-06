@@ -29,6 +29,7 @@ function AdminProducts() {
     categoryId: "",
     image: "",
     unidadVenta: "unidad",
+    varietiesText: "",
     available: true,
   })
   const [uploading, setUploading] = useState(false)
@@ -121,6 +122,10 @@ function AdminProducts() {
             categoryId: parseInt(form.categoryId),
             price: parseFloat(form.price),
             unidadVenta: form.unidadVenta,
+            varieties: form.varietiesText
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean),
             available: form.available,
           })
           setToast({ isVisible: true, message: `"${form.name}" actualizado correctamente`, type: "success" })
@@ -130,6 +135,10 @@ function AdminProducts() {
             categoryId: parseInt(form.categoryId),
             price: parseFloat(form.price),
             unidadVenta: form.unidadVenta,
+            varieties: form.varietiesText
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean),
             available: form.available,
           })
           setToast({ isVisible: true, message: `"${form.name}" creado correctamente`, type: "success" })
@@ -162,6 +171,9 @@ function AdminProducts() {
       categoryId: String(product.categoryId),
       image: product.image,
       unidadVenta: product.unidadVenta || "unidad",
+      varietiesText: Array.isArray(product.varieties)
+        ? product.varieties.join(", ")
+        : "",
       available: product.available ?? true,
     })
     setShowForm(true)
@@ -185,6 +197,7 @@ function AdminProducts() {
       categoryId: categories.length > 0 ? String(categories[0].id) : "",
       image: "",
       unidadVenta: "unidad",
+      varietiesText: "",
       available: true,
     })
     setEditingId(null)
@@ -296,6 +309,23 @@ function AdminProducts() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Variedades (opcional)
+                </label>
+                <input
+                  type="text"
+                  name="varietiesText"
+                  placeholder="Ej: Membrillo, Batata"
+                  value={form.varietiesText}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  Sepáralas con coma. Ejemplo: Queso, Integral, Sésamo, Clásico.
+                </p>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Estado de stock
                 </label>
@@ -400,6 +430,9 @@ function AdminProducts() {
                         Unidad
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                        Variedades
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
                         Stock
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
@@ -421,6 +454,11 @@ function AdminProducts() {
                         </td>
                         <td className="px-6 py-4 text-gray-600">
                           {product.unidadVenta || "unidad"}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {Array.isArray(product.varieties) && product.varieties.length > 0
+                            ? `${product.varieties.length} variedad${product.varieties.length !== 1 ? "es" : ""}`
+                            : "-"}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${product.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>

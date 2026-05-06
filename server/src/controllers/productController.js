@@ -1,5 +1,24 @@
 import { getPrisma } from "../db.js"
 
+const normalizeVarieties = (value) => {
+  if (!value) return []
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item).trim())
+      .filter((item) => item.length > 0)
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+  }
+
+  return []
+}
+
 /**
  * GET /api/products
  * Listar TODOS los productos disponibles (público)
@@ -58,7 +77,8 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const prisma = await getPrisma()
-    const { name, description = "", price, categoryId = 1, image, unidadVenta = "unidad", available = true, featured = false } = req.body
+    const { name, description = "", price, categoryId = 1, image, unidadVenta = "unidad", available = true, featured = false, varieties = [] } = req.body
+    const normalizedVarieties = normalizeVarieties(varieties)
     
     console.log("📝 Creando producto:", { name, price, image, unidadVenta })
     
@@ -78,6 +98,7 @@ export const createProduct = async (req, res) => {
         categoryId: parseInt(categoryId),
         image: image || "",
         unidadVenta,
+        varieties: normalizedVarieties,
         available,
         featured
       },
@@ -100,7 +121,7 @@ export const updateProduct = async (req, res) => {
   try {
     const prisma = await getPrisma()
     const { id } = req.params
-    const { name, description, price, categoryId, image, unidadVenta, available, featured } = req.body
+    const { name, description, price, categoryId, image, unidadVenta, available, featured, varieties } = req.body
     
     // Verificar que el producto existe
     const exists = await prisma.product.findUnique({
@@ -118,6 +139,7 @@ export const updateProduct = async (req, res) => {
     if (categoryId !== undefined) data.categoryId = parseInt(categoryId)
     if (image !== undefined) data.image = image
     if (unidadVenta !== undefined) data.unidadVenta = unidadVenta
+    if (varieties !== undefined) data.varieties = normalizeVarieties(varieties)
     if (available !== undefined) data.available = available
     if (featured !== undefined) data.featured = featured
     

@@ -6,10 +6,14 @@ function ProductCard({ product }) {
   const [imageError, setImageError] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [showVarieties, setShowVarieties] = useState(false)
   const { isSelected, toggleProduct } = useContext(CartContext)
   const closeTimeoutRef = useRef(null)
 
   const selected = isSelected(product.id)
+  const varieties = Array.isArray(product.varieties)
+    ? product.varieties.filter((item) => item?.trim().length > 0)
+    : []
 
   useEffect(() => {
     return () => {
@@ -166,6 +170,31 @@ function ProductCard({ product }) {
               {selected ? "Seleccionado ✓" : "Seleccionar"}
             </button>
           </div>
+
+          {varieties.length > 0 && (
+            <div className="pt-1">
+              <p className="text-xs font-medium text-gray-500">
+                {varieties.length} variedad{varieties.length !== 1 ? "es" : ""} disponible{varieties.length !== 1 ? "s" : ""}
+              </p>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  setShowVarieties((prev) => !prev)
+                }}
+                className="mt-1 text-sm font-medium text-amber-700 transition-colors hover:text-amber-800"
+              >
+                {showVarieties ? "Ocultar variedades" : "Ver variedades"}
+              </button>
+
+              {showVarieties && (
+                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                  {varieties.join(" · ")}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

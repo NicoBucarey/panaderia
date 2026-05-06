@@ -22,6 +22,7 @@ model Product {
   price       Int
   categoryId  Int
   image       String?
+  varieties   String[] @default([])
   available   Boolean  @default(true)
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
