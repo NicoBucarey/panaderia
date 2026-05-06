@@ -7,10 +7,12 @@ function ProductCard({ product }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [showVarieties, setShowVarieties] = useState(false)
+
   const { isSelected, toggleProduct } = useContext(CartContext)
   const closeTimeoutRef = useRef(null)
 
   const selected = isSelected(product.id)
+
   const varieties = Array.isArray(product.varieties)
     ? product.varieties.filter((item) => item?.trim().length > 0)
     : []
@@ -60,6 +62,7 @@ function ProductCard({ product }) {
     }
 
     setIsModalVisible(true)
+
     requestAnimationFrame(() => {
       setIsModalOpen(true)
     })
@@ -108,6 +111,13 @@ function ProductCard({ product }) {
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           )}
 
+          {/* Badge variedades */}
+          {varieties.length > 0 && (
+            <div className="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-1 rounded-full text-xs font-medium text-gray-700 shadow-sm">
+              {varieties.length} variedades
+            </div>
+          )}
+
           {imageError && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 px-4 text-center text-sm font-medium text-gray-500">
               Imagen no disponible
@@ -146,6 +156,28 @@ function ProductCard({ product }) {
             </button>
           </div>
 
+          {/* Info variedades */}
+          {varieties.length > 0 && (
+            <div className="relative">
+              <button
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  setShowVarieties((prev) => !prev)
+                }}
+                className="text-xs text-gray-500 hover:text-green-600 transition"
+              >
+                Ver variedades
+              </button>
+
+              {showVarieties && (
+                <div className="absolute left-0 mt-2 z-20 bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-sm text-gray-700 max-w-xs">
+                  {varieties.join(" · ")}
+                </div>
+              )}
+            </div>
+          )}
+
           <p className="text-gray-500 text-sm leading-snug">
             {product.description}
           </p>
@@ -170,34 +202,10 @@ function ProductCard({ product }) {
               {selected ? "Seleccionado ✓" : "Seleccionar"}
             </button>
           </div>
-
-          {varieties.length > 0 && (
-            <div className="pt-1">
-              <p className="text-xs font-medium text-gray-500">
-                {varieties.length} variedad{varieties.length !== 1 ? "es" : ""} disponible{varieties.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  setShowVarieties((prev) => !prev)
-                }}
-                className="mt-1 text-sm font-medium text-amber-700 transition-colors hover:text-amber-800"
-              >
-                {showVarieties ? "Ocultar variedades" : "Ver variedades"}
-              </button>
-
-              {showVarieties && (
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  {varieties.join(" · ")}
-                </p>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
+      {/* Modal imagen */}
       {isModalVisible && (
         <div
           className={`fixed inset-0 z-[70] flex items-center justify-center px-4 transition-colors duration-200 ${
