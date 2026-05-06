@@ -7,7 +7,9 @@ import { getPrisma } from "../db.js"
 export const getAllProducts = async (req, res) => {
   try {
     const prisma = await getPrisma()
+    const includeUnavailable = req.query.includeUnavailable === "true"
     const products = await prisma.product.findMany({
+      where: includeUnavailable ? {} : { available: true },
       include: { Category: true }
     })
     

@@ -12,12 +12,18 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
  */
 
 /**
- * Obtener todos los productos disponibles
+ * Obtener productos
  * GET /api/products
  */
-export const fetchProducts = async () => {
+export const fetchProducts = async ({ includeUnavailable = false } = {}) => {
   try {
-    const response = await fetch(`${API_URL}/api/products`)
+    const url = new URL(`${API_URL}/api/products`)
+
+    if (includeUnavailable) {
+      url.searchParams.set("includeUnavailable", "true")
+    }
+
+    const response = await fetch(url)
     
     if (!response.ok) {
       throw new Error(`Error ${response.status}: No se pudieron obtener los productos`)

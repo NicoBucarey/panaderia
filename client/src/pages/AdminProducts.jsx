@@ -51,7 +51,7 @@ function AdminProducts() {
     setError(null)
     try {
       const [productsData, categoriesData] = await Promise.all([
-        fetchProducts(),
+        fetchProducts({ includeUnavailable: true }),
         fetchCategories(),
       ])
       setProducts(productsData)
