@@ -31,7 +31,7 @@ function Footer() {
             Horarios
           </h4>
           <p>Lunes a Sábado: 8:00 - 21:00</p>
-          <p>Domingos: 8:00 - 14:30</p>
+          <p>Domingo: 8:00 - 14:30</p>
         </div>
 
       </div>

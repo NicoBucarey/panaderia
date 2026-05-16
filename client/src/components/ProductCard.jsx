@@ -1,10 +1,13 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { CartContext } from "../context/CartContext"
 import { ENABLE_WHATSAPP } from "../config/features"
+import { getLocalProductImageCandidates } from "../utils/productImageFallbacks"
 
 function ProductCard({ product }) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [imageSrc, setImageSrc] = useState("")
+  const [fallbackIndex, setFallbackIndex] = useState(-1)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
 
@@ -24,6 +27,27 @@ function ProductCard({ product }) {
       }
     }
   }, [])
+
+  const localFallbacks = getLocalProductImageCandidates(product.name)
+
+  const getPrimaryImageUrl = () => {
+    if (!product.image) return ""
+    if (product.image.startsWith("http")) return product.image
+    if (product.image.startsWith("/productos/")) return product.image
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"
+    return `${apiUrl}${product.image}`
+  }
+
+  useEffect(() => {
+    const primaryImageUrl = getPrimaryImageUrl()
+    const nextImageSrc = primaryImageUrl || localFallbacks[0] || ""
+
+    setImageSrc(nextImageSrc)
+    setImageLoaded(false)
+    setImageError(!nextImageSrc)
+    setFallbackIndex(primaryImageUrl ? -1 : nextImageSrc ? 0 : -1)
+  }, [product.id, product.image, product.name])
 
   useEffect(() => {
     if (!isModalVisible) return
@@ -45,17 +69,8 @@ function ProductCard({ product }) {
     }
   }, [isModalVisible])
 
-  const getImageUrl = () => {
-    if (!product.image) return ""
-    if (product.image.startsWith("http")) return product.image
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"
-    return `${apiUrl}${product.image}`
-  }
-
-  const imageUrl = getImageUrl()
-
   const openModal = () => {
-    if (!imageUrl || imageError) return
+    if (!imageSrc || imageError) return
 
     if (closeTimeoutRef.current) {
       window.clearTimeout(closeTimeoutRef.current)
@@ -79,6 +94,21 @@ function ProductCard({ product }) {
     }, 220)
   }
 
+  const handleImageError = () => {
+    const nextIndex = fallbackIndex + 1
+
+    if (nextIndex < localFallbacks.length) {
+      setImageSrc(localFallbacks[nextIndex])
+      setFallbackIndex(nextIndex)
+      setImageLoaded(false)
+      setImageError(false)
+      return
+    }
+
+    setImageError(true)
+    setImageLoaded(true)
+  }
+
   return (
     <>
       <div
@@ -94,13 +124,10 @@ function ProductCard({ product }) {
           onClick={openModal}
         >
           <img
-            src={imageUrl}
+            src={imageSrc}
             alt={product.name}
             onLoad={() => setImageLoaded(true)}
-            onError={() => {
-              setImageError(true)
-              setImageLoaded(true)
-            }}
+            onError={handleImageError}
             className={`w-full h-full object-cover hover:scale-105 transition-transform duration-500 ease-out ${
               imageLoaded ? "blur-0" : "blur-sm"
             }`}
@@ -219,7 +246,7 @@ function ProductCard({ product }) {
 
             <div className="flex h-[60vh] min-h-[320px] items-center justify-center overflow-hidden rounded-2xl bg-stone-100 sm:h-[65vh] md:h-[70vh] md:min-h-[420px]">
               <img
-                src={imageUrl}
+                src={imageSrc}
                 alt={product.name}
                 className="h-full w-full object-contain"
               />

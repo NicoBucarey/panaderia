@@ -6,22 +6,22 @@ function SocialSection() {
     {
       name: "Instagram",
       icon: FaInstagram,
-      url: "https://instagram.com", // Cambiar con tu URL
+      url: "https://www.instagram.com/panablasco_ok?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
       color: "text-pink-600 hover:text-pink-700"
     },
     {
       name: "TikTok",
       icon: SiTiktok,
-      url: "https://tiktok.com", // Cambiar con tu URL
+      url: "",
       color: "text-black hover:text-gray-700"
     },
     {
       name: "Facebook",
       icon: FaFacebookF,
-      url: "https://facebook.com", // Cambiar con tu URL
+      url: "",
       color: "text-blue-600 hover:text-blue-700"
     }
-  ]
+  ].filter((social) => social.url)
 
   return (
     <section id="redes" className="scroll-mt-20 bg-gradient-to-r from-yellow-50 to-amber-50 py-12 px-4 md:scroll-mt-24">
