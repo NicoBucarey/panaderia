@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
+import AdminBackLink from "../components/AdminBackLink"
 import Modal from "../components/Modal"
 import Toast from "../components/Toast"
 import {
@@ -169,12 +170,9 @@ function AdminCategories() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <button
-              onClick={() => navigate("/admin")}
-              className="text-blue-600 hover:underline text-sm mb-2"
-            >
-              ← Volver al panel
-            </button>
+            <div className="mb-4">
+              <AdminBackLink onClick={() => navigate("/admin")} />
+            </div>
             <h1 className="text-3xl font-bold text-gray-900">
               {isCreateMode ? "Crear Categoría" : "Gestionar Categorías"}
             </h1>
