@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import { CartContext } from "../context/CartContext"
+import { ENABLE_WHATSAPP } from "../config/features"
 
 function ProductCard({ product }) {
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -82,7 +83,7 @@ function ProductCard({ product }) {
     <>
       <div
         className={`rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer hover:shadow-xl ${
-          selected
+          ENABLE_WHATSAPP && selected
             ? "bg-green-50 border border-green-500 ring-2 ring-green-200 shadow-md"
             : "bg-white border border-gray-100 shadow-md"
         }`}
@@ -105,7 +106,7 @@ function ProductCard({ product }) {
             }`}
           />
 
-          {selected && (
+          {ENABLE_WHATSAPP && selected && (
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           )}
 
@@ -137,20 +138,22 @@ function ProductCard({ product }) {
               {product.name}
             </h3>
 
-            <button
-              onClick={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                toggleProduct(product)
-              }}
-              className={`ml-2 text-xl transition-transform ${
-                selected
-                  ? "text-green-600 scale-125"
-                  : "text-gray-400 hover:text-green-600"
-              }`}
-            >
-              ✓
-            </button>
+            {ENABLE_WHATSAPP && (
+              <button
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  toggleProduct(product)
+                }}
+                className={`ml-2 text-xl transition-transform ${
+                  selected
+                    ? "text-green-600 scale-125"
+                    : "text-gray-400 hover:text-green-600"
+                }`}
+              >
+                ✓
+              </button>
+            )}
           </div>
 
           {/* Variedades visibles */}
@@ -166,25 +169,27 @@ function ProductCard({ product }) {
           </p>
 
           {/* Precio y botón */}
-          <div className="flex items-center justify-between pt-2">
+          <div className={`pt-2 ${ENABLE_WHATSAPP ? "flex items-center justify-between" : "block"}`}>
             <p className="text-green-600 font-semibold text-lg tracking-tight">
               ${product.price.toFixed(2)} / {product.unidadVenta}
             </p>
 
-            <button
-              onClick={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                toggleProduct(product)
-              }}
-              className={`px-4 py-2 rounded-lg font-medium text-sm shadow-sm transition-all ${
-                selected
-                  ? "bg-green-500 hover:bg-green-600 text-white"
-                  : "bg-green-100 hover:bg-green-200 text-green-700"
-              }`}
-            >
-              {selected ? "Seleccionado ✓" : "Seleccionar"}
-            </button>
+            {ENABLE_WHATSAPP && (
+              <button
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  toggleProduct(product)
+                }}
+                className={`px-4 py-2 rounded-lg font-medium text-sm shadow-sm transition-all ${
+                  selected
+                    ? "bg-green-500 hover:bg-green-600 text-white"
+                    : "bg-green-100 hover:bg-green-200 text-green-700"
+                }`}
+              >
+                {selected ? "Seleccionado ✓" : "Seleccionar"}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import HoursSection from "../components/HoursSection"
 import SocialSection from "../components/SocialSection"
 import FloatingBar from "../components/FloatingBar"
 import WhatsAppSection from "../components/WhatsAppButton"
+import { ENABLE_WHATSAPP } from "../config/features"
 import { fetchCategories, fetchProducts } from "../services/api"
 
 function Home() {
@@ -61,7 +62,7 @@ function Home() {
 
  return (
   <>
-    <FloatingBar />
+    {ENABLE_WHATSAPP && <FloatingBar />}
     <HeroSection />
 
     <div id="menu" className="container mx-auto scroll-mt-20 md:scroll-mt-24 py-10 px-4">
@@ -116,7 +117,7 @@ function Home() {
       )}
 
     </div>
-    <WhatsAppSection />
+    {ENABLE_WHATSAPP && <WhatsAppSection />}
     <LocationSection />
     <HoursSection />
     <SocialSection />
