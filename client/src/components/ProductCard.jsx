@@ -203,7 +203,7 @@ function ProductCard({ product }) {
           onClick={closeModal}
         >
           <div
-            className={`relative w-full max-w-2xl rounded-3xl bg-white p-4 shadow-2xl transition-all duration-200 ${
+            className={`relative w-full max-w-3xl rounded-3xl bg-white p-4 shadow-2xl transition-all duration-200 ${
               isModalOpen
                 ? "translate-y-0 scale-100 opacity-100"
                 : "translate-y-4 scale-95 opacity-0"
@@ -217,11 +217,13 @@ function ProductCard({ product }) {
               ✕
             </button>
 
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className="max-h-[75vh] w-full rounded-2xl object-contain"
-            />
+            <div className="flex h-[60vh] min-h-[320px] items-center justify-center overflow-hidden rounded-2xl bg-stone-100 sm:h-[65vh] md:h-[70vh] md:min-h-[420px]">
+              <img
+                src={imageUrl}
+                alt={product.name}
+                className="h-full w-full object-contain"
+              />
+            </div>
 
             <h3 className="pt-4 text-center text-xl font-semibold text-gray-900">
               {product.name}

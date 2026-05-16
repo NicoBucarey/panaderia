@@ -1,6 +1,5 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { AuthContext } from "../context/AuthContext"
 import Modal from "../components/Modal"
 import Toast from "../components/Toast"
 import {
@@ -20,9 +19,8 @@ function AdminProducts() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [showForm, setShowForm] = useState(isCreateMode)
   const [editingId, setEditingId] = useState(null)
-
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -58,7 +56,7 @@ function AdminProducts() {
       setProducts(productsData)
       setCategories(categoriesData)
       if (categoriesData.length > 0 && !form.categoryId) {
-        setForm(prev => ({ ...prev, categoryId: String(categoriesData[0].id), unidadVenta: "unidad" }))
+        setForm((prev) => ({ ...prev, categoryId: String(categoriesData[0].id), unidadVenta: "unidad" }))
       }
     } catch (err) {
       setError(err.message)
@@ -67,23 +65,23 @@ function AdminProducts() {
     }
   }
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setForm(prev => ({
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target
+    setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }))
   }
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0]
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0]
     if (!file) return
 
     try {
       setUploading(true)
       setError(null)
       const result = await uploadImage(file)
-      setForm(prev => ({ ...prev, image: result.url }))
+      setForm((prev) => ({ ...prev, image: result.url }))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -91,75 +89,67 @@ function AdminProducts() {
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = (event) => {
+    event.preventDefault()
     setError(null)
-    
+
     if (!form.image) {
       setError("Por favor sube una imagen")
       return
     }
 
-    const isEditing = editingId ? true : false
+    const isEditing = Boolean(editingId)
     setModal({
       isOpen: true,
       type: "info",
       title: isEditing ? "Editar Producto" : "Crear Producto",
-      message: isEditing 
+      message: isEditing
         ? `¿Quieres guardar los cambios en "${form.name}"?`
         : `¿Quieres crear el producto "${form.name}"?`,
       action: "save",
-      targetId: editingId
+      targetId: editingId,
     })
   }
 
   const handleConfirmAction = async () => {
     try {
       if (modal.action === "save") {
+        const payload = {
+          ...form,
+          categoryId: parseInt(form.categoryId),
+          price: parseFloat(form.price),
+          unidadVenta: form.unidadVenta,
+          varieties: form.varietiesText
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean),
+          available: form.available,
+        }
+
         if (modal.targetId) {
-          await updateProduct(modal.targetId, {
-            ...form,
-            categoryId: parseInt(form.categoryId),
-            price: parseFloat(form.price),
-            unidadVenta: form.unidadVenta,
-            varieties: form.varietiesText
-              .split(",")
-              .map((item) => item.trim())
-              .filter(Boolean),
-            available: form.available,
-          })
+          await updateProduct(modal.targetId, payload)
           setToast({ isVisible: true, message: `"${form.name}" actualizado correctamente`, type: "success" })
         } else {
-          await createProduct({
-            ...form,
-            categoryId: parseInt(form.categoryId),
-            price: parseFloat(form.price),
-            unidadVenta: form.unidadVenta,
-            varieties: form.varietiesText
-              .split(",")
-              .map((item) => item.trim())
-              .filter(Boolean),
-            available: form.available,
-          })
+          await createProduct(payload)
           setToast({ isVisible: true, message: `"${form.name}" creado correctamente`, type: "success" })
         }
-        setModal({ ...modal, isOpen: false })
+
+        setModal((prev) => ({ ...prev, isOpen: false }))
         setTimeout(() => {
           resetForm()
           loadData()
-          setShowForm(false)
         }, 500)
       } else if (modal.action === "delete") {
         await deleteProduct(modal.targetId)
         setToast({ isVisible: true, message: "Producto eliminado correctamente", type: "success" })
-        setModal({ ...modal, isOpen: false })
+        setModal((prev) => ({ ...prev, isOpen: false }))
         setTimeout(() => {
           loadData()
         }, 500)
       }
     } catch (err) {
       setError(err.message)
-      setModal({ ...modal, isOpen: false })
+      setModal((prev) => ({ ...prev, isOpen: false }))
     }
   }
 
@@ -176,7 +166,7 @@ function AdminProducts() {
         : "",
       available: product.available ?? true,
     })
-    setShowForm(true)
+    setIsEditModalOpen(true)
   }
 
   const handleDelete = (id, productName) => {
@@ -186,7 +176,7 @@ function AdminProducts() {
       title: "Eliminar Producto",
       message: `¿Estás seguro que quieres eliminar "${productName}"? Esta acción no se puede deshacer.`,
       action: "delete",
-      targetId: id
+      targetId: id,
     })
   }
 
@@ -201,19 +191,178 @@ function AdminProducts() {
       available: true,
     })
     setEditingId(null)
-    setShowForm(false)
+    setIsEditModalOpen(false)
   }
+
+  const renderImagePreview = () => {
+    if (!form.image) return null
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"
+    const imageUrl = form.image.startsWith("http") ? form.image : `${apiUrl}${form.image}`
+
+    return (
+      <div className="mt-3">
+        <p className="text-sm text-gray-600 mb-2">Vista previa:</p>
+        <img
+          src={imageUrl}
+          alt="preview"
+          className="h-32 w-auto rounded-lg border border-gray-300"
+          onError={() => console.error("Error cargando preview:", imageUrl)}
+        />
+      </div>
+    )
+  }
+
+  const renderProductForm = (submitLabel, cancelAction) => (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Nombre
+          </label>
+          <input
+            type="text"
+            name="name"
+            placeholder="Ej: Pan Francés"
+            value={form.name}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Categoría
+          </label>
+          <select
+            name="categoryId"
+            value={form.categoryId}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          >
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Precio ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="price"
+            placeholder="Ej: 150.50"
+            value={form.price}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Unidad de Venta
+          </label>
+          <select
+            name="unidadVenta"
+            value={form.unidadVenta}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          >
+            <option value="unidad">Unidad</option>
+            <option value="docena">Docena</option>
+            <option value="porcion">Porción</option>
+            <option value="kg">kg</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Variedades (opcional)
+        </label>
+        <input
+          type="text"
+          name="varietiesText"
+          placeholder="Ej: Membrillo, Batata"
+          value={form.varietiesText}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        />
+        <p className="mt-2 text-xs text-gray-500">
+          Sepáralas con coma. Ejemplo: Queso, Integral, Sésamo, Clásico.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Estado de stock
+        </label>
+        <label className="inline-flex items-center gap-3 rounded-lg border border-gray-300 px-4 py-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            name="available"
+            checked={form.available}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+          />
+          <span className={`font-medium ${form.available ? "text-green-700" : "text-red-600"}`}>
+            {form.available ? "En stock" : "Sin stock"}
+          </span>
+        </label>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Subir Imagen
+        </label>
+        <input
+          type="file"
+          accept=".jpg,.jpeg,.png,.webp,.avif,.gif,image/jpeg,image/png,image/webp,image/avif,image/gif"
+          onChange={handleImageUpload}
+          disabled={uploading}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        />
+        <p className="mt-2 text-xs text-gray-500">
+          Formatos soportados: JPG, JPEG, PNG, WebP, AVIF y GIF.
+        </p>
+        {uploading && <p className="text-sm text-gray-500 mt-2">Subiendo...</p>}
+        {renderImagePreview()}
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+        >
+          {submitLabel}
+        </button>
+        <button
+          type="button"
+          onClick={cancelAction}
+          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <Toast 
-        isVisible={toast.isVisible} 
-        message={toast.message} 
+      <Toast
+        isVisible={toast.isVisible}
+        message={toast.message}
         type={toast.type}
-        onClose={() => setToast({ ...toast, isVisible: false })}
+        onClose={() => setToast((prev) => ({ ...prev, isVisible: false }))}
       />
+
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
             <button
@@ -234,170 +383,13 @@ function AdminProducts() {
           </div>
         )}
 
-        {/* Solo en modo crear o si showForm es true */}
-        {(isCreateMode || showForm) && (
+        {isCreateMode && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-bold mb-4">
-              {editingId ? "Editar Producto" : "Nuevo Producto"}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nombre
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Ej: Pan Francés"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Categoría
-                  </label>
-                  <select
-                    name="categoryId"
-                    value={form.categoryId}
-                    onChange={handleChange}
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Precio ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    name="price"
-                    placeholder="Ej: 150.50"
-                    value={form.price}
-                    onChange={handleChange}
-                    required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Unidad de Venta
-                  </label>
-                  <select
-                    name="unidadVenta"
-                    value={form.unidadVenta}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="unidad">Unidad</option>
-                    <option value="docena">Docena</option>
-                    <option value="porcion">Porción</option>
-                    <option value="kg">kg</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Variedades (opcional)
-                </label>
-                <input
-                  type="text"
-                  name="varietiesText"
-                  placeholder="Ej: Membrillo, Batata"
-                  value={form.varietiesText}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-                <p className="mt-2 text-xs text-gray-500">
-                  Sepáralas con coma. Ejemplo: Queso, Integral, Sésamo, Clásico.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Estado de stock
-                </label>
-                <label className="inline-flex items-center gap-3 rounded-lg border border-gray-300 px-4 py-3 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    name="available"
-                    checked={form.available}
-                    onChange={handleChange}
-                    className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                  />
-                  <span className={`font-medium ${form.available ? "text-green-700" : "text-red-600"}`}>
-                    {form.available ? "En stock" : "Sin stock"}
-                  </span>
-                </label>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Subir Imagen
-                </label>
-                <input
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.avif,.gif,image/jpeg,image/png,image/webp,image/avif,image/gif"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-                <p className="mt-2 text-xs text-gray-500">
-                  Formatos soportados: JPG, JPEG, PNG, WebP, AVIF y GIF.
-                </p>
-                {uploading && <p className="text-sm text-gray-500 mt-2">Subiendo...</p>}
-                {form.image && (
-                  <div className="mt-3">
-                    <p className="text-sm text-gray-600 mb-2">Vista previa:</p>
-                    {(() => {
-                      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"
-                      // Si ya tiene protocolo, usar tal cual. Si no, construir URL completa
-                      const imageUrl = form.image.startsWith("http") ? form.image : `${apiUrl}${form.image}`
-                      return (
-                        <img 
-                          src={imageUrl} 
-                          alt="preview" 
-                          className="h-32 w-auto rounded-lg border border-gray-300"
-                          onError={(e) => console.error("Error cargando preview:", imageUrl)}
-                        />
-                      )
-                    })()}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                >
-                  {editingId ? "Guardar Cambios" : "Crear Producto"}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
+            <h2 className="text-xl font-bold mb-4">Nuevo Producto</h2>
+            {renderProductForm("Crear Producto", resetForm)}
           </div>
         )}
 
-        {/* Lista de Productos - Solo mostrar en Vista Normal */}
         {!isCreateMode && (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
@@ -417,44 +409,22 @@ function AdminProducts() {
                 <table className="w-full">
                   <thead className="bg-gray-100 border-b border-gray-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Nombre
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Categoría
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Precio
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Unidad
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Variedades
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Stock
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Acciones
-                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Nombre</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Categoría</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Precio</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Unidad</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Variedades</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Stock</th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {products.map(product => (
+                    {products.map((product) => (
                       <tr key={product.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">
-                          {product.name}
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">
-                          {product.Category.name}
-                        </td>
-                        <td className="px-6 py-4 font-semibold text-green-600">
-                          ${product.price.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">
-                          {product.unidadVenta || "unidad"}
-                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-900">{product.name}</td>
+                        <td className="px-6 py-4 text-gray-600">{product.Category.name}</td>
+                        <td className="px-6 py-4 font-semibold text-green-600">${product.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-gray-600">{product.unidadVenta || "unidad"}</td>
                         <td className="px-6 py-4 text-gray-600">
                           {Array.isArray(product.varieties) && product.varieties.length > 0
                             ? `${product.varieties.length} variedad${product.varieties.length !== 1 ? "es" : ""}`
@@ -487,17 +457,44 @@ function AdminProducts() {
             )}
           </div>
         )}
-      </div>      
+      </div>
+
       <Modal
         isOpen={modal.isOpen}
         title={modal.title}
         message={modal.message}
         type={modal.type}
         onConfirm={handleConfirmAction}
-        onCancel={() => setModal({ ...modal, isOpen: false })}
+        onCancel={() => setModal((prev) => ({ ...prev, isOpen: false }))}
         confirmText={modal.action === "delete" ? "Eliminar" : "Guardar"}
         cancelText="Cancelar"
-      />    </div>
+      />
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/50 px-4 py-6">
+          <div className="mx-auto w-full max-w-4xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Editar Producto</h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Actualiza la información del producto y guarda los cambios desde este modal.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-xl text-gray-600 transition-colors hover:bg-gray-200"
+                aria-label="Cerrar modal de edición"
+              >
+                ✕
+              </button>
+            </div>
+
+            {renderProductForm("Guardar Cambios", resetForm)}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 

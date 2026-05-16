@@ -1,6 +1,5 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { AuthContext } from "../context/AuthContext"
 import Modal from "../components/Modal"
 import Toast from "../components/Toast"
 import {
@@ -17,8 +16,8 @@ function AdminCategories() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [showForm, setShowForm] = useState(isCreateMode)
   const [editingId, setEditingId] = useState(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [formValue, setFormValue] = useState("")
   const [modal, setModal] = useState({ isOpen: false, type: "info", title: "", message: "", action: null, targetId: null, value: "" })
   const [toast, setToast] = useState({ isVisible: false, message: "", type: "success" })
@@ -47,8 +46,8 @@ function AdminCategories() {
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = (event) => {
+    event.preventDefault()
     setError(null)
     const normalizedValue = formValue.trim()
 
@@ -56,18 +55,18 @@ function AdminCategories() {
       setError("El nombre de la categoría es requerido")
       return
     }
-    
-    const isEditing = editingId ? true : false
+
+    const isEditing = Boolean(editingId)
     setModal({
       isOpen: true,
       type: "info",
       title: isEditing ? "Editar Categoría" : "Crear Categoría",
-      message: isEditing 
+      message: isEditing
         ? `¿Quieres guardar los cambios en "${normalizedValue}"?`
         : `¿Quieres crear la categoría "${normalizedValue}"?`,
       action: "save",
       targetId: editingId,
-      value: normalizedValue
+      value: normalizedValue,
     })
   }
 
@@ -81,30 +80,30 @@ function AdminCategories() {
           await createCategory(modal.value)
           setToast({ isVisible: true, message: `"${modal.value}" creada correctamente`, type: "success" })
         }
-        setModal({ ...modal, isOpen: false })
+
+        setModal((prev) => ({ ...prev, isOpen: false }))
         setTimeout(() => {
           resetForm()
           loadCategories()
-          setShowForm(false)
         }, 500)
       } else if (modal.action === "delete") {
         await deleteCategory(modal.targetId)
         setToast({ isVisible: true, message: "Categoría eliminada correctamente", type: "success" })
-        setModal({ ...modal, isOpen: false })
+        setModal((prev) => ({ ...prev, isOpen: false }))
         setTimeout(() => {
           loadCategories()
         }, 500)
       }
     } catch (err) {
       setError(err.message)
-      setModal({ ...modal, isOpen: false })
+      setModal((prev) => ({ ...prev, isOpen: false }))
     }
   }
 
   const handleEdit = (category) => {
     setEditingId(category.id)
     setFormValue(category.name)
-    setShowForm(true)
+    setIsEditModalOpen(true)
   }
 
   const handleDelete = (id, categoryName) => {
@@ -114,26 +113,60 @@ function AdminCategories() {
       title: "Eliminar Categoría",
       message: `¿Estás seguro que quieres eliminar "${categoryName}"? Esta acción no se puede deshacer.`,
       action: "delete",
-      targetId: id
+      targetId: id,
     })
   }
 
   const resetForm = () => {
     setFormValue("")
     setEditingId(null)
-    setShowForm(false)
+    setIsEditModalOpen(false)
   }
+
+  const renderCategoryForm = (submitLabel, cancelAction) => (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Nombre de la Categoría
+        </label>
+        <input
+          type="text"
+          placeholder="Ej: Panificados"
+          value={formValue}
+          onChange={(event) => setFormValue(event.target.value)}
+          required
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+        >
+          {submitLabel}
+        </button>
+        <button
+          type="button"
+          onClick={cancelAction}
+          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <Toast 
-        isVisible={toast.isVisible} 
-        message={toast.message} 
+      <Toast
+        isVisible={toast.isVisible}
+        message={toast.message}
         type={toast.type}
-        onClose={() => setToast({ ...toast, isVisible: false })}
+        onClose={() => setToast((prev) => ({ ...prev, isVisible: false }))}
       />
+
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
             <button
@@ -154,47 +187,13 @@ function AdminCategories() {
           </div>
         )}
 
-        {/* Formulario - Solo en modo crear o si showForm es true */}
-        {(isCreateMode || showForm) && (
+        {isCreateMode && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-bold mb-4">
-              {editingId ? "Editar Categoría" : "Nueva Categoría"}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre de la Categoría
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej: Panificados"
-                  value={formValue}
-                  onChange={(e) => setFormValue(e.target.value)}
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                >
-                  {editingId ? "Guardar Cambios" : "Crear Categoría"}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
+            <h2 className="text-xl font-bold mb-4">Nueva Categoría</h2>
+            {renderCategoryForm("Crear Categoría", resetForm)}
           </div>
         )}
 
-        {/* Lista de Categorías - Solo mostrar en Vista Normal */}
         {!isCreateMode && (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
@@ -211,7 +210,7 @@ function AdminCategories() {
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {categories.map(category => (
+                {categories.map((category) => (
                   <div
                     key={category.id}
                     className="px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
@@ -239,17 +238,44 @@ function AdminCategories() {
             )}
           </div>
         )}
-      </div>      
+      </div>
+
       <Modal
         isOpen={modal.isOpen}
         title={modal.title}
         message={modal.message}
         type={modal.type}
         onConfirm={handleConfirmAction}
-        onCancel={() => setModal({ ...modal, isOpen: false })}
+        onCancel={() => setModal((prev) => ({ ...prev, isOpen: false }))}
         confirmText={modal.action === "delete" ? "Eliminar" : "Guardar"}
         cancelText="Cancelar"
-      />    </div>
+      />
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4 py-6">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Editar Categoría</h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Actualiza el nombre y guarda los cambios desde este modal.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-xl text-gray-600 transition-colors hover:bg-gray-200"
+                aria-label="Cerrar modal de edición"
+              >
+                ✕
+              </button>
+            </div>
+
+            {renderCategoryForm("Guardar Cambios", resetForm)}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
