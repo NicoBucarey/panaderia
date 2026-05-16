@@ -32,7 +32,7 @@ function Modal({ isOpen, title, message, type = "info", onConfirm, onCancel, con
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50">
       <div className={`${bgColor[type]} border-2 rounded-lg shadow-2xl p-8 max-w-md w-full mx-4`}>
         {/* Header con icono */}
         <div className="flex items-center gap-3 mb-4">

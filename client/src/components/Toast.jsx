@@ -14,7 +14,7 @@ function Toast({ message, type = "success", isVisible, onClose }) {
   const icon = type === "success" ? "✓" : "✕"
 
   return (
-    <div className={`fixed top-4 left-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in`}>
+    <div className={`fixed right-4 top-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-[90] animate-fade-in`}>
       <span className="text-xl font-bold">{icon}</span>
       <span className="font-medium">{message}</span>
     </div>
