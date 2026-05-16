@@ -63,7 +63,7 @@ function Navbar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 z-50 w-full border-b border-amber-100 bg-stone-50 shadow-[0_12px_35px_rgba(15,23,42,0.12)] md:border-white/60 md:bg-white/85 md:backdrop-blur-xl"
+      className="fixed top-0 left-0 z-50 w-full border-b border-slate-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.12)] md:border-white/60 md:bg-white"
     >
       <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex justify-between items-center">
 
@@ -127,7 +127,7 @@ function Navbar() {
           />
 
           <div className={`fixed top-[4.4rem] left-0 right-0 z-40 px-4 ${mobileMenuOpen ? "animate-slide-down" : "animate-slide-up"}`}>
-            <div className="mx-auto max-w-md overflow-hidden rounded-[28px] border border-white/70 bg-white/92 p-3 shadow-[0_20px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl">
+            <div className="mx-auto max-w-md overflow-hidden rounded-[28px] border border-slate-200 bg-white p-3 shadow-[0_20px_50px_rgba(15,23,42,0.18)]">
               <div className="flex flex-col gap-1 text-center">
                 <a 
                   href="#menu" 
