@@ -24,7 +24,7 @@ function SocialSection() {
   ]
 
   return (
-    <section className="bg-gradient-to-r from-yellow-50 to-amber-50 py-12 px-4">
+    <section id="redes" className="scroll-mt-20 bg-gradient-to-r from-yellow-50 to-amber-50 py-12 px-4 md:scroll-mt-24">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
           Síguenos en nuestras redes

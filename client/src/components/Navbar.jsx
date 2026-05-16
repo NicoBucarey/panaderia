@@ -63,7 +63,7 @@ function Navbar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 z-50 w-full border-b border-white/60 bg-white/85 backdrop-blur-md shadow-[0_8px_30px_rgba(15,23,42,0.06)]"
+      className="fixed top-0 left-0 z-50 w-full border-b border-amber-100/80 bg-stone-50/95 backdrop-blur-xl shadow-[0_12px_35px_rgba(15,23,42,0.1)] md:border-white/60 md:bg-white/85"
     >
       <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex justify-between items-center">
 
@@ -84,8 +84,8 @@ function Navbar() {
           <a href="#ubicacion" className="hover:text-yellow-600" onClick={handleNavClick}>
             Ubicación
           </a>
-          <a href={ENABLE_WHATSAPP ? "#contacto-whatsapp" : "#contacto"} className="hover:text-yellow-600" onClick={handleNavClick}>
-            Contacto
+          <a href="#redes" className="hover:text-yellow-600" onClick={handleNavClick}>
+            Redes
           </a>
           {isAuthenticated ? (
             <button
@@ -104,7 +104,7 @@ function Navbar() {
         {/* Hamburger Menu Mobile */}
         <button
           onClick={toggleMobileMenu}
-          className={`md:hidden flex h-11 w-11 items-center justify-center rounded-2xl border border-amber-200/80 bg-white/90 text-slate-900 shadow-sm transition-all duration-300 hover:scale-105 hover:bg-amber-50 ${mobileMenuVisible && mobileMenuOpen ? "rotate-90 border-amber-300 bg-amber-50 shadow-md" : "rotate-0"}`}
+          className={`md:hidden flex h-11 w-11 items-center justify-center rounded-2xl border border-amber-300/90 bg-white text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition-all duration-300 hover:scale-105 hover:bg-amber-50 ${mobileMenuVisible && mobileMenuOpen ? "rotate-90 border-amber-400 bg-amber-50 shadow-md" : "rotate-0"}`}
           aria-label="Abrir menú"
           aria-expanded={mobileMenuVisible && mobileMenuOpen}
         >
@@ -144,11 +144,11 @@ function Navbar() {
                   Ubicación
                 </a>
                 <a 
-                  href={ENABLE_WHATSAPP ? "#contacto-whatsapp" : "#contacto"} 
+                  href="#redes" 
                   className="rounded-2xl px-4 py-3 text-[15px] font-semibold text-slate-800 transition-all duration-200 hover:bg-amber-50 hover:text-amber-700"
                   onClick={handleNavClick}
                 >
-                  Contacto
+                  Redes
                 </a>
 
                 <div className="mx-3 my-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />

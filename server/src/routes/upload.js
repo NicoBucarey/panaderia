@@ -1,5 +1,6 @@
 import express from "express"
 import upload from "../middleware/upload.js"
+import { isCloudinaryEnabled, uploadBufferToCloudinary } from "../utils/cloudinary.js"
 
 const router = express.Router()
 
@@ -13,6 +14,26 @@ router.post("/", upload.single("image"), (req, res) => {
       return res.status(400).json({ error: "No se subió ningún archivo" })
     }
 
+    if (isCloudinaryEnabled) {
+      uploadBufferToCloudinary(req.file.buffer, req.file.originalname)
+        .then((result) => {
+          res.json({
+            success: true,
+            filename: result.public_id,
+            url: result.secure_url,
+            message: "Imagen subida correctamente"
+          })
+
+          console.log("✅ Imagen subida a Cloudinary:", result.secure_url)
+        })
+        .catch((error) => {
+          console.error("Error al subir imagen a Cloudinary:", error)
+          res.status(500).json({ error: "Error al subir imagen" })
+        })
+
+      return
+    }
+
     // Retornar solo la ruta relativa - el frontend resolverá la URL completa
     const imagePath = `/uploads/${req.file.filename}`
 
@@ -22,7 +43,7 @@ router.post("/", upload.single("image"), (req, res) => {
       url: imagePath,
       message: "Imagen subida correctamente"
     })
-    
+
     console.log("✅ Imagen subida:", imagePath)
   } catch (error) {
     console.error("Error al subir imagen:", error)
