@@ -63,7 +63,7 @@ function Navbar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 z-50 w-full border-b border-amber-100/80 bg-stone-50/95 backdrop-blur-xl shadow-[0_12px_35px_rgba(15,23,42,0.1)] md:border-white/60 md:bg-white/85"
+      className="fixed top-0 left-0 z-50 w-full border-b border-amber-100 bg-stone-50 shadow-[0_12px_35px_rgba(15,23,42,0.12)] md:border-white/60 md:bg-white/85 md:backdrop-blur-xl"
     >
       <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex justify-between items-center">
 
