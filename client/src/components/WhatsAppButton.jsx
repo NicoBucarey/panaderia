@@ -1,7 +1,7 @@
 import { FaWhatsapp } from "react-icons/fa"
 
 function WhatsAppSection() {
-  const phoneNumber = "5492994573997"
+  const phoneNumber = "5492996342425"
   const message = "Hola, quisiera información sobre los productos de Panadería Blasco"
 
   const handleWhatsAppClick = () => {
