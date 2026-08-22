@@ -7,13 +7,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem("adminToken")
+    const token = localStorage.getItem("authToken")
     setIsAuthenticated(!!token)
     setLoading(false)
   }, [])
 
   const logout = () => {
-    localStorage.removeItem("adminToken")
+    localStorage.removeItem("authToken")
     setIsAuthenticated(false)
   }
 
