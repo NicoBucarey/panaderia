@@ -1,3 +1,4 @@
+import "dotenv/config"
 import bcrypt from "bcryptjs"
 import { PrismaClient } from "@prisma/client"
 
@@ -9,14 +10,20 @@ async function seed() {
 
     // ========== CREAR ADMIN ==========
     console.log("\n📝 Creando usuario admin...")
-    
-    const hashedPassword = await bcrypt.hash("admin123", 10)
+    const adminEmail = process.env.ADMIN_EMAIL
+    const adminPassword = process.env.ADMIN_PASSWORD
+
+    if (!adminEmail || !adminPassword) {
+      throw new Error("Faltan ADMIN_EMAIL y ADMIN_PASSWORD. Definilas antes de ejecutar el seed.")
+    }
+
+    const hashedPassword = await bcrypt.hash(adminPassword, 10)
     
     const admin = await prisma.user.upsert({
-      where: { email: "admin@panaderia.com" },
+      where: { email: adminEmail },
       update: {},
       create: {
-        email: "admin@panaderia.com",
+        email: adminEmail,
         password: hashedPassword
       }
     })
@@ -203,10 +210,16 @@ async function seed() {
       }
     ]
 
-    // Eliminar productos existentes y crear nuevos
-    await prisma.product.deleteMany({})
-    
     for (const prod of products) {
+      const existingProduct = await prisma.product.findFirst({
+        where: { name: prod.name }
+      })
+
+      if (existingProduct) {
+        console.log(`↪️ Producto ya existente: ${prod.name}`)
+        continue
+      }
+
       await prisma.product.create({
         data: prod
       })
@@ -215,7 +228,7 @@ async function seed() {
 
     console.log("\n✨ Seed completado exitosamente!")
     console.log("\n📊 Datos iniciales:")
-    console.log(`- 1 Admin: admin@panaderia.com (password: admin123)`)
+    console.log(`- Admin: ${admin.email}`)
     console.log(`- 6 Categorías`)
     console.log(`- 15 Productos (con unidadVenta)`)
 
