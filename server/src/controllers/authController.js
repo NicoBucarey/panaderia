@@ -51,11 +51,20 @@ export const login = async (req, res) => {
 
 /**
  * POST /api/auth/register
- * Crear/actualizar usuario admin (desarrollo)
- * Para resetear contraseña, usa este endpoint
+ * Crear/actualizar usuario admin.
+ * En producción requiere ADMIN_SETUP_SECRET y el header x-admin-setup-secret.
  */
 export const register = async (req, res) => {
   try {
+    if (process.env.NODE_ENV === "production") {
+      const setupSecret = process.env.ADMIN_SETUP_SECRET
+      const providedSecret = req.get("x-admin-setup-secret")
+
+      if (!setupSecret || providedSecret !== setupSecret) {
+        return res.status(403).json({ error: "Registro no habilitado" })
+      }
+    }
+
     const prisma = await getPrisma()
     const { email, password } = req.body
 

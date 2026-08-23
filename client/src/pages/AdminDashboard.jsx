@@ -1,4 +1,4 @@
-import { useEffect, useContext } from "react"
+import { useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
 import AdminCard from "../components/AdminCard"
@@ -6,13 +6,6 @@ import AdminCard from "../components/AdminCard"
 function AdminDashboard() {
   const navigate = useNavigate()
   const { logout } = useContext(AuthContext)
-
-  useEffect(() => {
-    const token = localStorage.getItem("authToken")
-    if (!token) {
-      navigate("/admin/login")
-    }
-  }, [navigate])
 
   const handleLogout = () => {
     logout()

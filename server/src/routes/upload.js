@@ -1,5 +1,6 @@
 import express from "express"
 import upload from "../middleware/upload.js"
+import { verifyToken } from "../middleware/auth.js"
 import { isCloudinaryEnabled, uploadBufferToCloudinary } from "../utils/cloudinary.js"
 
 const router = express.Router()
@@ -8,7 +9,7 @@ const router = express.Router()
  * POST /api/upload
  * Subir una imagen
  */
-router.post("/", upload.single("image"), (req, res) => {
+router.post("/", verifyToken, upload.single("image"), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No se subió ningún archivo" })

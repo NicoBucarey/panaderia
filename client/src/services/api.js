@@ -360,13 +360,22 @@ export const deleteCategory = async (id) => {
  */
 export const uploadImage = async (file) => {
   try {
+    const token = localStorage.getItem("authToken")
+
+    if (!token) {
+      throw new Error("No hay sesión activa")
+    }
+
     const formData = new FormData()
     formData.append("image", file)
 
     const response = await fetch(`${API_URL}/api/upload`, {
       method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
       body: formData
-      // NO incluir Content-Type: application/json porque es multipart/form-data
+      // No incluir Content-Type para que el navegador defina el boundary multipart/form-data.
     })
 
     const data = await response.json()

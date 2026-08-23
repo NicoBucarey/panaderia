@@ -36,13 +36,6 @@ function AdminProducts() {
   const [toast, setToast] = useState({ isVisible: false, message: "", type: "success" })
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken")
-    if (!token) {
-      navigate("/admin/login")
-    }
-  }, [navigate])
-
-  useEffect(() => {
     loadData()
   }, [])
 
