@@ -199,3 +199,44 @@ CLOUDINARY_FOLDER="panaderia"
 ```
 
 La API guarda con cada producto la URL HTTPS y el identificador interno de Cloudinary. Esto permite eliminar la imagen anterior al reemplazarla y también al borrar el producto. Las imágenes nuevas no se almacenan permanentemente en el VPS; las rutas históricas `/uploads/...` se mantienen accesibles sólo durante la transición.
+
+---
+
+## Despliegue con Docker Compose
+
+La configuración de producción usa cuatro servicios:
+
+* `web`: Nginx sirve el build de React y enruta `/api` y `/uploads` hacia la API.
+* `api`: Express y Prisma, sin puertos publicados al host.
+* `db`: PostgreSQL con el volumen persistente `postgres_data`, sin puertos publicados al host.
+* `migrate`: tarea manual para ejecutar migraciones de Prisma.
+
+Antes de iniciar, crear los archivos externos al repositorio a partir de los ejemplos:
+
+```text
+env/api.env.example      → env/api.env
+env/postgres.env.example → env/postgres.env
+```
+
+Completar las contraseñas, `JWT_SECRET`, `CORS_ORIGIN` y las credenciales de Cloudinary. Estos archivos están ignorados por Git y no deben versionarse.
+
+Construir las imágenes:
+
+```bash
+docker compose build
+```
+
+En una base nueva, ejecutar las migraciones manualmente antes de iniciar la API:
+
+```bash
+docker compose up -d db
+docker compose run --rm migrate
+```
+
+Luego iniciar los servicios de aplicación:
+
+```bash
+docker compose up -d web api
+```
+
+No usar `prisma db push` en producción. Para una base existente, verificar y baselinar el historial de migraciones antes de ejecutar `migrate`.

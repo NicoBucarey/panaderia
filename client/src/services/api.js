@@ -5,7 +5,9 @@
  * en http://localhost:5000 (desarrollo) o la URL de producción
  */
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+export const API_URL = import.meta.env.VITE_API_URL ?? (
+  import.meta.env.DEV ? "http://localhost:5000" : ""
+)
 
 /**
  * PRODUCTOS - Rutas públicas (sin autenticación)
@@ -17,7 +19,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
  */
 export const fetchProducts = async ({ includeUnavailable = false } = {}) => {
   try {
-    const url = new URL(`${API_URL}/api/products`)
+    const url = new URL(`${API_URL}/api/products`, window.location.origin)
 
     if (includeUnavailable) {
       url.searchParams.set("includeUnavailable", "true")

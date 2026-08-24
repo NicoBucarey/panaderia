@@ -1,0 +1,53 @@
+services:
+  web:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  api:
+    image: panaderia-api:latest
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    env_file:
+      - ./env/api.env
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "5000"
+    volumes:
+      - ./server/uploads:/app/uploads:ro
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    env_file:
+      - ./env/postgres.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  migrate:
+    image: panaderia-api:latest
+    profiles: ["migrate"]
+    env_file:
+      - ./env/api.env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npx", "prisma", "migrate", "deploy"]
+    restart: "no"
+
+volumes:
+  postgres_data:

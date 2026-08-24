@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { CartContext } from "../context/CartContext"
 import { ENABLE_WHATSAPP } from "../config/features"
 import { getLocalProductImageCandidates } from "../utils/productImageFallbacks"
+import { API_URL } from "../services/api"
 
 function ProductCard({ product }) {
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -34,16 +35,14 @@ function ProductCard({ product }) {
     if (!product.image) return ""
     if (product.image.startsWith("/productos/")) return product.image
 
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"
-
     const localhostUpload = product.image.match(/^https?:\/\/localhost(?::\d+)?(\/uploads\/.*)$/i)
     if (localhostUpload) {
-      return `${apiUrl}${localhostUpload[1]}`
+      return `${API_URL}${localhostUpload[1]}`
     }
 
     if (product.image.startsWith("http")) return product.image
 
-    return `${apiUrl}${product.image}`
+    return `${API_URL}${product.image}`
   }
 
   useEffect(() => {

@@ -14,10 +14,16 @@ const PORT = process.env.PORT || 5000
 
 // ==================== MIDDLEWARES ====================
 // CORS: Permite solicitudes desde el frontend (Vite en localhost:5173)
+const configuredOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
 const allowedOrigins = [
   "http://localhost:5173",      // Desarrollo local
   "http://localhost:3000",       // Desarrollo local alternativo
   "https://panaderia-blasco.vercel.app", // Producción
+  ...configuredOrigins,
 ]
 
 app.use(cors({

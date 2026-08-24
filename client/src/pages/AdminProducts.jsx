@@ -10,6 +10,7 @@ import {
   updateProduct,
   deleteProduct,
   uploadImage,
+  API_URL,
 } from "../services/api"
 
 function AdminProducts() {
@@ -199,8 +200,7 @@ function AdminProducts() {
   const renderImagePreview = () => {
     if (!form.image) return null
 
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"
-    const imageUrl = form.image.startsWith("http") ? form.image : `${apiUrl}${form.image}`
+    const imageUrl = form.image.startsWith("http") ? form.image : `${API_URL}${form.image}`
 
     return (
       <div className="mt-3">
