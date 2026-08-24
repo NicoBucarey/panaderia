@@ -40,3 +40,14 @@ export const uploadBufferToCloudinary = (buffer, originalname) => {
     stream.end(buffer)
   })
 }
+
+export const deleteImageFromCloudinary = async (publicId) => {
+  if (!publicId || !isCloudinaryEnabled) {
+    return
+  }
+
+  await cloudinary.uploader.destroy(publicId, {
+    resource_type: "image",
+    invalidate: true,
+  })
+}

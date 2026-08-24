@@ -184,3 +184,18 @@ Próximos pasos:
 ## 🤝 Autores
 
 Proyecto desarrollado en conjunto por dos estudiantes/desarrolladores como práctica de desarrollo web full‑stack.
+
+---
+
+## Imágenes de productos (Cloudinary)
+
+Las imágenes nuevas se suben desde el panel administrativo a Cloudinary. El backend requiere `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET`; `CLOUDINARY_FOLDER` es opcional:
+
+```env
+CLOUDINARY_CLOUD_NAME="tu-cloud-name"
+CLOUDINARY_API_KEY="tu-api-key"
+CLOUDINARY_API_SECRET="tu-api-secret"
+CLOUDINARY_FOLDER="panaderia"
+```
+
+La API guarda con cada producto la URL HTTPS y el identificador interno de Cloudinary. Esto permite eliminar la imagen anterior al reemplazarla y también al borrar el producto. Las imágenes nuevas no se almacenan permanentemente en el VPS; las rutas históricas `/uploads/...` se mantienen accesibles sólo durante la transición.

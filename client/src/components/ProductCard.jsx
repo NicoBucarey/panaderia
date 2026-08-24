@@ -32,10 +32,17 @@ function ProductCard({ product }) {
 
   const getPrimaryImageUrl = () => {
     if (!product.image) return ""
-    if (product.image.startsWith("http")) return product.image
     if (product.image.startsWith("/productos/")) return product.image
 
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000"
+
+    const localhostUpload = product.image.match(/^https?:\/\/localhost(?::\d+)?(\/uploads\/.*)$/i)
+    if (localhostUpload) {
+      return `${apiUrl}${localhostUpload[1]}`
+    }
+
+    if (product.image.startsWith("http")) return product.image
+
     return `${apiUrl}${product.image}`
   }
 

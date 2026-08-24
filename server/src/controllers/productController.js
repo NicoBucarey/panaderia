@@ -1,4 +1,5 @@
 import { getPrisma } from "../db.js"
+import { deleteImageFromCloudinary } from "../utils/cloudinary.js"
 
 const normalizeVarieties = (value) => {
   if (!value) return []
@@ -77,7 +78,7 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const prisma = await getPrisma()
-    const { name, description = "", price, categoryId = 1, image, unidadVenta = "unidad", available = true, featured = false, varieties = [] } = req.body
+    const { name, description = "", price, categoryId = 1, image, imagePublicId, unidadVenta = "unidad", available = true, featured = false, varieties = [] } = req.body
     const normalizedVarieties = normalizeVarieties(varieties)
     
     console.log("📝 Creando producto:", { name, price, image, unidadVenta })
@@ -97,6 +98,7 @@ export const createProduct = async (req, res) => {
         price: parseInt(price),
         categoryId: parseInt(categoryId),
         image: image || "",
+        imagePublicId: imagePublicId || null,
         unidadVenta,
         varieties: normalizedVarieties,
         available,
@@ -121,7 +123,7 @@ export const updateProduct = async (req, res) => {
   try {
     const prisma = await getPrisma()
     const { id } = req.params
-    const { name, description, price, categoryId, image, unidadVenta, available, featured, varieties } = req.body
+    const { name, description, price, categoryId, image, imagePublicId, unidadVenta, available, featured, varieties } = req.body
     
     // Verificar que el producto existe
     const exists = await prisma.product.findUnique({
@@ -138,6 +140,7 @@ export const updateProduct = async (req, res) => {
     if (price !== undefined) data.price = parseInt(price)
     if (categoryId !== undefined) data.categoryId = parseInt(categoryId)
     if (image !== undefined) data.image = image
+    if (imagePublicId !== undefined) data.imagePublicId = imagePublicId || null
     if (unidadVenta !== undefined) data.unidadVenta = unidadVenta
     if (varieties !== undefined) data.varieties = normalizeVarieties(varieties)
     if (available !== undefined) data.available = available
@@ -148,6 +151,14 @@ export const updateProduct = async (req, res) => {
       data,
       include: { Category: true }
     })
+
+    if (exists.imagePublicId && exists.imagePublicId !== updated.imagePublicId) {
+      try {
+        await deleteImageFromCloudinary(exists.imagePublicId)
+      } catch (error) {
+        console.error("Error al eliminar imagen anterior de Cloudinary:", error)
+      }
+    }
     
     res.json(updated)
   } catch (error) {
@@ -173,9 +184,17 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ error: "Producto no encontrado" })
     }
     
-    await prisma.product.delete({
+    const deleted = await prisma.product.delete({
       where: { id: parseInt(id) }
     })
+
+    if (deleted.imagePublicId) {
+      try {
+        await deleteImageFromCloudinary(deleted.imagePublicId)
+      } catch (error) {
+        console.error("Error al eliminar imagen de Cloudinary:", error)
+      }
+    }
     
     res.json({ message: "Producto eliminado" })
   } catch (error) {

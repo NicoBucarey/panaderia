@@ -1,29 +1,5 @@
 import multer from "multer"
-import fs from "fs"
 import path from "path"
-import { fileURLToPath } from "url"
-import { isCloudinaryEnabled } from "../utils/cloudinary.js"
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const uploadsDir = path.join(__dirname, "../../uploads")
-
-if (!isCloudinaryEnabled) {
-  fs.mkdirSync(uploadsDir, { recursive: true })
-}
-
-// Configurar almacenamiento
-const storage = isCloudinaryEnabled
-  ? multer.memoryStorage()
-  : multer.diskStorage({
-      destination: (req, file, cb) => {
-        cb(null, uploadsDir)
-      },
-      filename: (req, file, cb) => {
-        // Renombrar archivo: timestamp + nombre original
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
-        cb(null, uniqueSuffix + path.extname(file.originalname))
-      }
-    })
 
 // Filtrar solo imágenes
 const fileFilter = (req, file, cb) => {
@@ -49,7 +25,7 @@ const fileFilter = (req, file, cb) => {
 
 // Configurar multer
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB máximo
 })

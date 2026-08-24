@@ -27,6 +27,7 @@ function AdminProducts() {
     price: "",
     categoryId: "",
     image: "",
+    imagePublicId: "",
     unidadVenta: "unidad",
     varietiesText: "",
     available: true,
@@ -75,7 +76,11 @@ function AdminProducts() {
       setUploading(true)
       setError(null)
       const result = await uploadImage(file)
-      setForm((prev) => ({ ...prev, image: result.url }))
+      setForm((prev) => ({
+        ...prev,
+        image: result.url,
+        imagePublicId: result.publicId,
+      }))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -112,6 +117,7 @@ function AdminProducts() {
           ...form,
           categoryId: parseInt(form.categoryId),
           price: parseFloat(form.price),
+          imagePublicId: form.imagePublicId || null,
           unidadVenta: form.unidadVenta,
           varieties: form.varietiesText
             .split(",")
@@ -154,6 +160,7 @@ function AdminProducts() {
       price: String(product.price),
       categoryId: String(product.categoryId),
       image: product.image,
+      imagePublicId: product.imagePublicId || "",
       unidadVenta: product.unidadVenta || "unidad",
       varietiesText: Array.isArray(product.varieties)
         ? product.varieties.join(", ")
@@ -180,6 +187,7 @@ function AdminProducts() {
       price: "",
       categoryId: categories.length > 0 ? String(categories[0].id) : "",
       image: "",
+      imagePublicId: "",
       unidadVenta: "unidad",
       varietiesText: "",
       available: true,
