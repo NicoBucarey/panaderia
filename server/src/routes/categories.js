@@ -1,35 +1,24 @@
-import express from "express"
+import { Router } from "express";
+import { requireAuth } from "../middleware/auth.js";
 import {
-  getAllCategories,
+  validateCreateCategory,
+  validateUpdateCategory,
+  validateIdParam,
+} from "../middleware/validate.js";
+import {
+  listCategories,
   getCategoryById,
   createCategory,
   updateCategory,
-  deleteCategory
-} from "../controllers/categoryController.js"
-import { verifyToken } from "../middleware/auth.js"
+  deleteCategory,
+} from "../controllers/categoryController.js";
 
-const router = express.Router()
+const router = Router();
 
-/**
- * Rutas de CATEGORÍAS
- * 
- * Públicas (sin autenticación):
- * - GET /api/categories → listar todas
- * - GET /api/categories/:id → detalle
- * 
- * Privadas (solo admin):
- * - POST /api/categories → crear
- * - PUT /api/categories/:id → editar
- * - DELETE /api/categories/:id → eliminar
- */
+router.get("/", listCategories);
+router.get("/:id", validateIdParam, getCategoryById);
+router.post("/", requireAuth, validateCreateCategory, createCategory);
+router.put("/:id", requireAuth, validateIdParam, validateUpdateCategory, updateCategory);
+router.delete("/:id", requireAuth, validateIdParam, deleteCategory);
 
-// PÚBLICAS - Sin necesidad de autenticación
-router.get("/", getAllCategories)
-router.get("/:id", getCategoryById)
-
-// PRIVADAS - Requieren token JWT (middleware verifyToken)
-router.post("/", verifyToken, createCategory)
-router.put("/:id", verifyToken, updateCategory)
-router.delete("/:id", verifyToken, deleteCategory)
-
-export default router
+export default router;

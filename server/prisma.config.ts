@@ -12,6 +12,6 @@ export default defineConfig({
     url: process.env["DATABASE_URL"],
   },
   prisma: {
-    seed: "src/seed.js"
+    seed: "seed.js"
   }
 });

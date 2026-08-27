@@ -1,139 +1,107 @@
-import { getPrisma } from "../db.js"
+import prisma from "../config/prisma.js";
 
-/**
- * GET /api/categories
- * Obtener todas las categorías
- */
-export const getAllCategories = async (req, res) => {
+export async function listCategories(req, res, next) {
   try {
-    const prisma = await getPrisma()
-    const categories = await prisma.category.findMany()
-    res.json(categories)
+    const categories = await prisma.category.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
+    });
+
+    return res.json(categories);
   } catch (error) {
-    console.error("Error al obtener categorías:", error)
-    res.status(500).json({ error: "Error interno del servidor" })
+    next(error);
   }
 }
 
-/**
- * GET /api/categories/:id
- * Obtener una categoría específica
- */
-export const getCategoryById = async (req, res) => {
+export async function getCategoryById(req, res, next) {
   try {
-    const prisma = await getPrisma()
-    const { id } = req.params
     const category = await prisma.category.findUnique({
-      where: { id: parseInt(id) },
-      include: { products: true }
-    })
+      where: { id: Number(req.params.id) },
+    });
 
     if (!category) {
-      return res.status(404).json({ error: "Categoría no encontrada" })
+      return res.status(404).json({ message: "Categoría no encontrada" });
     }
 
-    res.json(category)
+    return res.json(category);
   } catch (error) {
-    console.error("Error al obtener categoría:", error)
-    res.status(500).json({ error: "Error interno del servidor" })
+    next(error);
   }
 }
 
-/**
- * POST /api/categories
- * Crear una nueva categoría (SOLO ADMIN)
- */
-export const createCategory = async (req, res) => {
+export async function createCategory(req, res, next) {
   try {
-    const prisma = await getPrisma()
-    const normalizedName = req.body.name?.trim()
+    const { name } = req.body;
 
-    if (!normalizedName) {
-      return res.status(400).json({ error: "El nombre es requerido" })
+    if (!name || String(name).trim() === "") {
+      return res.status(400).json({ message: "El nombre es obligatorio" });
     }
 
     const category = await prisma.category.create({
-      data: { name: normalizedName }
-    })
+      data: {
+        name: String(name).trim(),
+      },
+    });
 
-    res.status(201).json(category)
+    return res.status(201).json(category);
   } catch (error) {
     if (error.code === "P2002") {
-      return res.status(400).json({ error: "Esta categoría ya existe" })
+      return res.status(409).json({ message: "Ya existe una categoría con ese nombre" });
     }
-    console.error("Error al crear categoría:", error)
-    res.status(500).json({ error: "Error interno del servidor" })
+
+    next(error);
   }
 }
 
-/**
- * PUT /api/categories/:id
- * Actualizar una categoría (SOLO ADMIN)
- */
-export const updateCategory = async (req, res) => {
+export async function updateCategory(req, res, next) {
   try {
-    const prisma = await getPrisma()
-    const { id } = req.params
-    const normalizedName = req.body.name?.trim()
+    const { name } = req.body;
 
-    if (!normalizedName) {
-      return res.status(400).json({ error: "El nombre es requerido" })
-    }
-
-    const exists = await prisma.category.findUnique({
-      where: { id: parseInt(id) }
-    })
-
-    if (!exists) {
-      return res.status(404).json({ error: "Categoría no encontrada" })
+    if (!name || String(name).trim() === "") {
+      return res.status(400).json({ message: "El nombre es obligatorio" });
     }
 
     const category = await prisma.category.update({
-      where: { id: parseInt(id) },
-      data: { name: normalizedName }
-    })
+      where: { id: Number(req.params.id) },
+      data: { name: String(name).trim() },
+    });
 
-    res.json(category)
+    return res.json(category);
   } catch (error) {
-    if (error.code === "P2002") {
-      return res.status(400).json({ error: "Este nombre ya existe" })
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Categoría no encontrada" });
     }
-    console.error("Error al actualizar categoría:", error)
-    res.status(500).json({ error: "Error interno del servidor" })
+
+    if (error.code === "P2002") {
+      return res.status(409).json({ message: "Ya existe una categoría con ese nombre" });
+    }
+
+    next(error);
   }
 }
 
-/**
- * DELETE /api/categories/:id
- * Eliminar una categoría (SOLO ADMIN)
- */
-export const deleteCategory = async (req, res) => {
+export async function deleteCategory(req, res, next) {
   try {
-    const prisma = await getPrisma()
-    const { id } = req.params
+    const categoryId = Number(req.params.id);
 
-    const exists = await prisma.category.findUnique({
-      where: { id: parseInt(id) },
-      include: { Product: true }
-    })
-
-    if (!exists) {
-      return res.status(404).json({ error: "Categoría no encontrada" })
+    const productsCount = await prisma.product.count({ where: { categoryId } });
+    if (productsCount > 0) {
+      return res.status(409).json({
+        message: "No se puede eliminar una categoría con productos asociados. Reasigna o elimina los productos primero.",
+      });
     }
 
-    if (exists.Product.length > 0) {
-      return res.status(400).json({ 
-        error: `No se puede eliminar. Esta categoría tiene ${exists.Product.length} producto(s)` 
-      })
-    }
-
-    await prisma.category.delete({
-      where: { id: parseInt(id) }
-    })
-
-    res.json({ message: "Categoría eliminada" })
+    await prisma.category.delete({ where: { id: categoryId } });
+    return res.status(204).send();
   } catch (error) {
-    console.error("Error al eliminar categoría:", error)
-    res.status(500).json({ error: "Error interno del servidor" })
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Categoría no encontrada" });
+    }
+
+    next(error);
   }
 }

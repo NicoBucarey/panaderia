@@ -1,34 +1,30 @@
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
+import prisma from "../config/prisma.js";
 
-/**
- * Middleware para verificar JWT
- * POR QUÉ: Protege rutas que solo el admin debe acceder
- * 
- * Flujo:
- * 1. Cliente envía request con header: Authorization: "Bearer token123"
- * 2. Este middleware extrae el token
- * 3. Verifica que el token sea válido con JWT_SECRET
- * 4. Si es válido, continúa. Si no, retorna 401
- */
-export const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.authorization
-
-  // Extrae el token del header: "Bearer token123" → "token123"
-  const token = authHeader && authHeader.split(" ")[1]
-
-  if (!token) {
-    return res.status(401).json({ error: "Token no proporcionado" })
-  }
-
+export async function requireAuth(req, res, next) {
   try {
-    // Verifica que el token sea válido
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    
-    // Guarda el userId en la request para usarlo después
-    req.userId = decoded.userId
-    
-    next() // Continúa a la siguiente ruta
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Token de autenticación requerido" });
+    }
+
+    const token = authHeader.replace("Bearer ", "").trim();
+    const decoded = jwt.verify(token, env.JWT_SECRET);
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.sub },
+      select: { id: true, email: true },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "Usuario no autorizado" });
+    }
+
+    req.user = user;
+    next();
   } catch (error) {
-    return res.status(403).json({ error: "Token inválido o expirado" })
+    return res.status(401).json({ message: "Token inválido o expirado" });
   }
 }
