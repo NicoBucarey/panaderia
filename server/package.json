@@ -1,16 +1,16 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "description": "",
+  "name": "panaderia-backend",
+  "version": "2.0.0",
+  "private": true,
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "node -r dotenv/config node_modules/nodemon/bin/nodemon.js src/server.js",
-    "seed": "node src/seed.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed.js",
     "db:migrate": "prisma migrate deploy",
-    "start": "npm run db:migrate --silent && node -r dotenv/config src/server.js",
-    "db:push": "prisma db push --skip-generate",
-    "postinstall": "prisma generate"
+    "start": "node server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +26,6 @@
     "multer": "^2.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
     "prisma": "^6.0.0"
   }
 }

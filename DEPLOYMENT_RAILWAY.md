@@ -41,7 +41,7 @@ NODE_ENV=production
 ### Configurar Build & Deploy:
 
 1. Railway debería detectar automáticamente que es un proyecto Node.js
-2. **Start Command:** `node -r dotenv/config src/server.js` (ya configurado en package.json)
+2. **Start Command:** `node server.js` (ya configurado en package.json)
 3. El servicio se deployará automáticamente
 
 ### Obtener la URL del Backend:
@@ -71,7 +71,7 @@ VITE_API_URL=https://tu-backend-railway.up.railway.app
 
 Si la URL de Vercel es diferente a `https://panaderia.vercel.app`:
 
-1. Ve a `server/src/server.js`
+1. Ve a `server/app.js`
 2. Actualiza el array `allowedOrigins`:
 
 ```javascript

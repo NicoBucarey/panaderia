@@ -24,7 +24,7 @@ export async function getCategoryById(req, res, next) {
     });
 
     if (!category) {
-      return res.status(404).json({ message: "Categoría no encontrada" });
+      return res.status(404).json({ error: "Categoría no encontrada", message: "Categoría no encontrada" });
     }
 
     return res.json(category);
@@ -38,7 +38,7 @@ export async function createCategory(req, res, next) {
     const { name } = req.body;
 
     if (!name || String(name).trim() === "") {
-      return res.status(400).json({ message: "El nombre es obligatorio" });
+      return res.status(400).json({ error: "El nombre es obligatorio", message: "El nombre es obligatorio" });
     }
 
     const category = await prisma.category.create({
@@ -50,7 +50,7 @@ export async function createCategory(req, res, next) {
     return res.status(201).json(category);
   } catch (error) {
     if (error.code === "P2002") {
-      return res.status(409).json({ message: "Ya existe una categoría con ese nombre" });
+      return res.status(409).json({ error: "Ya existe una categoría con ese nombre", message: "Ya existe una categoría con ese nombre" });
     }
 
     next(error);
@@ -62,7 +62,7 @@ export async function updateCategory(req, res, next) {
     const { name } = req.body;
 
     if (!name || String(name).trim() === "") {
-      return res.status(400).json({ message: "El nombre es obligatorio" });
+      return res.status(400).json({ error: "El nombre es obligatorio", message: "El nombre es obligatorio" });
     }
 
     const category = await prisma.category.update({
@@ -73,11 +73,11 @@ export async function updateCategory(req, res, next) {
     return res.json(category);
   } catch (error) {
     if (error.code === "P2025") {
-      return res.status(404).json({ message: "Categoría no encontrada" });
+      return res.status(404).json({ error: "Categoría no encontrada", message: "Categoría no encontrada" });
     }
 
     if (error.code === "P2002") {
-      return res.status(409).json({ message: "Ya existe una categoría con ese nombre" });
+      return res.status(409).json({ error: "Ya existe una categoría con ese nombre", message: "Ya existe una categoría con ese nombre" });
     }
 
     next(error);
@@ -91,6 +91,7 @@ export async function deleteCategory(req, res, next) {
     const productsCount = await prisma.product.count({ where: { categoryId } });
     if (productsCount > 0) {
       return res.status(409).json({
+        error: "No se puede eliminar una categoría con productos asociados. Reasigna o elimina los productos primero.",
         message: "No se puede eliminar una categoría con productos asociados. Reasigna o elimina los productos primero.",
       });
     }
@@ -99,7 +100,7 @@ export async function deleteCategory(req, res, next) {
     return res.status(204).send();
   } catch (error) {
     if (error.code === "P2025") {
-      return res.status(404).json({ message: "Categoría no encontrada" });
+      return res.status(404).json({ error: "Categoría no encontrada", message: "Categoría no encontrada" });
     }
 
     next(error);

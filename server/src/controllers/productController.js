@@ -17,22 +17,34 @@ function sanitizeProductPayload(payload) {
     varieties: Array.isArray(payload.varieties) ? payload.varieties.map((item) => String(item).trim()).filter(Boolean) : [],
     unidadVenta: String(payload.unidadVenta ?? "unidad").trim() || "unidad",
     available: payload.available !== undefined ? Boolean(payload.available) : true,
-    imageUrl: payload.imageUrl ?? null,
+    imageUrl: payload.imageUrl ?? payload.image ?? null,
     imagePublicId: payload.imagePublicId ?? null,
+  };
+}
+
+function serializeProduct(product) {
+  return {
+    ...product,
+    price: Number(product.price),
+    image: product.imageUrl ?? null,
+    imageUrl: product.imageUrl ?? null,
+    Category: product.category ?? null,
+    category: product.category ?? null,
   };
 }
 
 export async function listProducts(req, res, next) {
   try {
+    const includeUnavailable = req.query.includeUnavailable === "true" || req.query.includeUnavailable === "1";
+    const where = includeUnavailable ? {} : { available: true };
+
     const products = await prisma.product.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       include: { category: true },
     });
 
-    return res.json(products.map((product) => ({
-      ...product,
-      price: Number(product.price),
-    })));
+    return res.json(products.map((product) => serializeProduct(product)));
   } catch (error) {
     next(error);
   }
@@ -46,13 +58,10 @@ export async function getProductById(req, res, next) {
     });
 
     if (!product) {
-      return res.status(404).json({ message: "Producto no encontrado" });
+      return res.status(404).json({ error: "Producto no encontrado", message: "Producto no encontrado" });
     }
 
-    return res.json({
-      ...product,
-      price: Number(product.price),
-    });
+    return res.json(serializeProduct(product));
   } catch (error) {
     next(error);
   }
@@ -63,12 +72,12 @@ export async function createProduct(req, res, next) {
     const payload = sanitizeProductPayload(req.body);
 
     if (!payload.name || !payload.description || !payload.categoryId) {
-      return res.status(400).json({ message: "Nombre, descripción, categoría y precio son obligatorios" });
+      return res.status(400).json({ error: "Nombre, descripción, categoría y precio son obligatorios", message: "Nombre, descripción, categoría y precio son obligatorios" });
     }
 
     const category = await prisma.category.findUnique({ where: { id: payload.categoryId } });
     if (!category) {
-      return res.status(404).json({ message: "Categoría no encontrada" });
+      return res.status(404).json({ error: "Categoría no encontrada", message: "Categoría no encontrada" });
     }
 
     const product = await prisma.product.create({
@@ -76,10 +85,7 @@ export async function createProduct(req, res, next) {
       include: { category: true },
     });
 
-    return res.status(201).json({
-      ...product,
-      price: Number(product.price),
-    });
+    return res.status(201).json(serializeProduct(product));
   } catch (error) {
     next(error);
   }
@@ -91,21 +97,22 @@ export async function updateProduct(req, res, next) {
     const existing = await prisma.product.findUnique({ where: { id: productId } });
 
     if (!existing) {
-      return res.status(404).json({ message: "Producto no encontrado" });
+      return res.status(404).json({ error: "Producto no encontrado", message: "Producto no encontrado" });
     }
 
     const nextPayload = sanitizeProductPayload({
       ...existing,
       ...req.body,
+      imageUrl: req.body.imageUrl ?? req.body.image ?? existing.imageUrl,
     });
 
     if (!nextPayload.name || !nextPayload.description || !nextPayload.categoryId) {
-      return res.status(400).json({ message: "Nombre, descripción, categoría y precio son obligatorios" });
+      return res.status(400).json({ error: "Nombre, descripción, categoría y precio son obligatorios", message: "Nombre, descripción, categoría y precio son obligatorios" });
     }
 
     const category = await prisma.category.findUnique({ where: { id: nextPayload.categoryId } });
     if (!category) {
-      return res.status(404).json({ message: "Categoría no encontrada" });
+      return res.status(404).json({ error: "Categoría no encontrada", message: "Categoría no encontrada" });
     }
 
     if (
@@ -136,10 +143,7 @@ export async function updateProduct(req, res, next) {
       include: { category: true },
     });
 
-    return res.json({
-      ...updated,
-      price: Number(updated.price),
-    });
+    return res.json(serializeProduct(updated));
   } catch (error) {
     next(error);
   }
@@ -151,7 +155,7 @@ export async function deleteProduct(req, res, next) {
     const product = await prisma.product.findUnique({ where: { id: productId } });
 
     if (!product) {
-      return res.status(404).json({ message: "Producto no encontrado" });
+      return res.status(404).json({ error: "Producto no encontrado", message: "Producto no encontrado" });
     }
 
     if (product.imagePublicId) {

@@ -8,19 +8,19 @@ export async function login(req, res, next) {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email y contraseña son obligatorios" });
+      return res.status(400).json({ error: "Email y contraseña son obligatorios", message: "Email y contraseña son obligatorios" });
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return res.status(401).json({ message: "Credenciales inválidas" });
+      return res.status(401).json({ error: "Credenciales inválidas", message: "Credenciales inválidas" });
     }
 
     const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordMatches) {
-      return res.status(401).json({ message: "Credenciales inválidas" });
+      return res.status(401).json({ error: "Credenciales inválidas", message: "Credenciales inválidas" });
     }
 
     const token = jwt.sign({ sub: user.id, email: user.email }, env.JWT_SECRET, {

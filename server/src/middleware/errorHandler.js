@@ -9,6 +9,7 @@ export function errorHandler(err, req, res, next) {
   const message = err.message || "Error interno del servidor";
 
   res.status(status).json({
+    error: message,
     message,
     details: process.env.NODE_ENV === "development" ? err.details || undefined : undefined,
   });

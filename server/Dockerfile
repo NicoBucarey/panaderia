@@ -9,8 +9,11 @@ COPY prisma ./prisma
 COPY prisma.config.ts ./
 RUN npx prisma generate
 
+COPY app.js ./
+COPY server.js ./
+COPY seed.js ./
 COPY src ./src
 
 EXPOSE 5000
 
-CMD ["node", "src/server.js"]
+CMD ["node", "server.js"]

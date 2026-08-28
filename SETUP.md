@@ -83,7 +83,7 @@ panaderia/
 
 ## 📝 Notas Importantes
 
-1. **Uploads**: Los archivos subidos se guardan en `/server/uploads/`
+1. **Imágenes**: Los archivos subidos se almacenan en Cloudinary (no en servidor local).
 2. **CORS**: Configurado para permitir localhost y dominios de producción
 3. **JWT**: Usa `localStorage` para guardar tokens
 4. **DB**: PostgreSQL requerida tanto en desarrollo como producción

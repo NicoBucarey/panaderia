@@ -31,7 +31,7 @@
 - [ ] Vercel redespliega automáticamente
 
 ### 4. Actualizar CORS (si es necesario)
-- [ ] Si tu Vercel URL es distinta, actualiza `server/src/server.js`
+- [ ] Si tu Vercel URL es distinta, actualiza `server/app.js`
 - [ ] Modifica el array `allowedOrigins`
 - [ ] Pushea a GitHub (Railway redespliega)
 
