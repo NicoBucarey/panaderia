@@ -5,8 +5,22 @@ export function errorHandler(err, req, res, next) {
 
   console.error("Unhandled error:", err);
 
-  const status = err.statusCode || 500;
-  const message = err.message || "Error interno del servidor";
+  let status = err.statusCode || 500;
+  let message = err.message || "Error interno del servidor";
+
+  if (err.code === "ERR_ERL_UNEXPECTED_X_FORWARDED_FOR") {
+    status = 500;
+    message = "Error de configuración del proxy";
+  } else if (err.code === "LIMIT_FILE_SIZE") {
+    status = 413;
+    message = "La imagen no puede superar los 5 MB";
+  } else if (err.code === "LIMIT_FILE_COUNT" || err.code === "LIMIT_UNEXPECTED_FILE") {
+    status = 400;
+    message = "Solo se permite una imagen por solicitud";
+  } else if (err.code === "INVALID_FILE_TYPE") {
+    status = 400;
+    message = "Solo se permiten imágenes JPEG, PNG o WebP";
+  }
 
   res.status(status).json({
     error: message,

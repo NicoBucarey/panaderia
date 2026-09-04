@@ -1,14 +1,19 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { env } from "./src/config/env.js";
 import authRoutes from "./src/routes/auth.js";
 import categoryRoutes from "./src/routes/categories.js";
 import productRoutes from "./src/routes/products.js";
 import uploadRoutes from "./src/routes/upload.js";
+import { loginRateLimit, uploadRateLimit } from "./src/middleware/rateLimit.js";
 import { notFoundHandler } from "./src/middleware/notFound.js";
 import { errorHandler } from "./src/middleware/errorHandler.js";
 
 const app = express();
+
+app.set("trust proxy", 1);
+app.use(helmet());
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -38,10 +43,11 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "panaderia-backend" });
 });
 
+app.use("/api/auth/login", loginRateLimit);
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/upload", uploadRoutes);
+app.use("/api/upload", uploadRateLimit, uploadRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
